@@ -69,12 +69,14 @@ export default function CategoryModal({ isOpen, onClose, category }: CategoryMod
               </button>
 
               {/* Modal Content */}
-              <div className="p-6">
+              <div className="p-3 sm:p-6">
                 {/* Title */}
-                <h2 className="text-2xl font-black text-[#415b58] text-center mb-6">Collection {categoryTitle}</h2>
+                <h2 className="text-xl sm:text-2xl font-black text-[#415b58] text-center mb-4 sm:mb-6">
+                  Collection {categoryTitle}
+                </h2>
 
                 {/* Options Grid */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2 sm:gap-4">
                   {/* Lunettes de Vue */}
                   <Link href={`/${category}/vue`} className="group" onClick={onClose}>
                     <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
@@ -85,9 +87,9 @@ export default function CategoryModal({ isOpen, onClose, category }: CategoryMod
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>
-                      <div className="p-4 text-center">
-                        <h3 className="text-lg font-black text-[#415b58] mb-1">Lunettes de Vue</h3>
-                        <p className="text-gray-600 font-normal text-sm">Correction visuelle</p>
+                      <div className="p-2 sm:p-4 text-center">
+                        <h3 className="text-sm sm:text-lg font-black text-[#415b58] mb-1">Lunettes de Vue</h3>
+                        <p className="text-gray-600 font-normal text-xs sm:text-sm">Correction visuelle</p>
                       </div>
                     </div>
                   </Link>
@@ -102,9 +104,9 @@ export default function CategoryModal({ isOpen, onClose, category }: CategoryMod
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>
-                      <div className="p-4 text-center">
-                        <h3 className="text-lg font-black text-[#415b58] mb-1">Lunettes de Soleil</h3>
-                        <p className="text-gray-600 font-normal text-sm">Protection solaire</p>
+                      <div className="p-2 sm:p-4 text-center">
+                        <h3 className="text-sm sm:text-lg font-black text-[#415b58] mb-1">Lunettes de Soleil</h3>
+                        <p className="text-gray-600 font-normal text-xs sm:text-sm">Protection solaire</p>
                       </div>
                     </div>
                   </Link>

@@ -23,7 +23,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr" className={roboto.variable}>
+    <html lang="fr" className={roboto.variable} translate="no">
+      <head>
+        <meta name="google" content="notranslate" />
+      </head>
       <body className="font-roboto antialiased">
         <CartProvider>{children}</CartProvider>
       </body>
