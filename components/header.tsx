@@ -16,6 +16,7 @@ export default function Header({ forceWhite = false }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(forceWhite)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [windowHeight, setWindowHeight] = useState(0)
+  const [showBanner, setShowBanner] = useState(true)
   const headerRef = useRef<HTMLElement>(null)
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<"homme" | "femme" | null>(null)
@@ -59,7 +60,9 @@ export default function Header({ forceWhite = false }: HeaderProps) {
   // Handle scroll events
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(forceWhite || window.scrollY > 10)
+      const scrollY = window.scrollY
+      setIsScrolled(forceWhite || scrollY > 10)
+      setShowBanner(scrollY < 50) // Hide banner when scrolling down
     }
 
     window.addEventListener("scroll", handleScroll)
@@ -103,6 +106,19 @@ export default function Header({ forceWhite = false }: HeaderProps) {
     }),
   }
 
+  const bannerVariants = {
+    visible: {
+      height: "auto",
+      opacity: 1,
+      transition: { duration: 0.3, ease: "easeInOut" },
+    },
+    hidden: {
+      height: 0,
+      opacity: 0,
+      transition: { duration: 0.3, ease: "easeInOut" },
+    },
+  }
+
   const menuItems = [
     { name: "Accueil", href: "/" },
     { name: "Contact", href: "/contact" },
@@ -120,30 +136,46 @@ export default function Header({ forceWhite = false }: HeaderProps) {
 
   return (
     <>
-      <header
-        ref={headerRef}
-        className={cn(
-          "fixed top-0 left-0 right-0 z-40 transition-all duration-300 ease-in-out",
-          isScrolled ? "bg-white/95 backdrop-blur-md shadow-md py-3" : "bg-transparent py-5 md:py-6",
-        )}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            {/* Left Side - Menu + Logo */}
-            <div className="flex items-center space-x-4">
-              {/* Mobile Menu Button - Left */}
-              <div className="md:hidden">
-                <button
-                  className={cn(
-                    "p-2 transition-colors",
-                    isScrolled ? "text-[#415b58] hover:bg-[#415b58]/10" : "text-white hover:bg-white/10",
-                  )}
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  aria-label="Menu"
-                >
-                  <Menu size={24} />
-                </button>
-              </div>
+      <header ref={headerRef} className="fixed top-0 left-0 right-0 z-40">
+        {/* Banner Section */}
+        <motion.div
+          variants={bannerVariants}
+          animate={showBanner ? "visible" : "hidden"}
+          className="bg-black text-white overflow-hidden"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="py-2 text-center">
+              <p className="text-sm font-medium">
+                Livraison Gratuite au Maroc dans 24H/48H, Échanges et retours gratuits.🔥
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Main Header Section */}
+        <div
+          className={cn(
+            "transition-all duration-300 ease-in-out",
+            isScrolled ? "bg-white/95 backdrop-blur-md shadow-md py-3" : "bg-transparent py-5 md:py-6",
+          )}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center">
+              {/* Left Side - Menu + Logo */}
+              <div className="flex items-center space-x-4">
+                {/* Mobile Menu Button - Left */}
+                <div className="md:hidden">
+                  <button
+                    className={cn(
+                      "p-2 transition-colors",
+                      isScrolled ? "text-[#415b58] hover:bg-[#415b58]/10" : "text-white hover:bg-white/10",
+                    )}
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    aria-label="Menu"
+                  >
+                    <Menu size={24} />
+                  </button>
+                </div>
 
               {/* Logo */}
               <Link href="/" className="flex items-center">
@@ -159,114 +191,115 @@ export default function Header({ forceWhite = false }: HeaderProps) {
               </Link>
             </div>
 
-            {/* Desktop Navigation - Centered */}
-            <nav className="hidden md:flex items-center space-x-8 flex-1 justify-center">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
+              {/* Desktop Navigation - Centered */}
+              <nav className="hidden md:flex items-center space-x-8 flex-1 justify-center">
+                {menuItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className={cn(
+                      "text-base relative group transition-colors font-black",
+                      isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
+                    )}
+                  >
+                    {item.name}
+                    <span
+                      className={cn(
+                        "absolute -bottom-1 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300",
+                        isScrolled ? "bg-[#415b58]" : "bg-white",
+                      )}
+                    />
+                  </Link>
+                ))}
+                <button
+                  onClick={() => handleCategoryClick("homme")}
                   className={cn(
                     "text-base relative group transition-colors font-black",
                     isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
                   )}
                 >
-                  {item.name}
+                  Homme
                   <span
                     className={cn(
                       "absolute -bottom-1 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300",
                       isScrolled ? "bg-[#415b58]" : "bg-white",
                     )}
                   />
-                </Link>
-              ))}
-              <button
-                onClick={() => handleCategoryClick("homme")}
-                className={cn(
-                  "text-base relative group transition-colors font-black",
-                  isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
-                )}
-              >
-                Homme
-                <span
+                </button>
+                <button
+                  onClick={() => handleCategoryClick("femme")}
                   className={cn(
-                    "absolute -bottom-1 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300",
-                    isScrolled ? "bg-[#415b58]" : "bg-white",
+                    "text-base relative group transition-colors font-black",
+                    isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
                   )}
-                />
-              </button>
-              <button
-                onClick={() => handleCategoryClick("femme")}
-                className={cn(
-                  "text-base relative group transition-colors font-black",
-                  isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
-                )}
-              >
-                Femme
-                <span
-                  className={cn(
-                    "absolute -bottom-1 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300",
-                    isScrolled ? "bg-[#415b58]" : "bg-white",
-                  )}
-                />
-              </button>
-            </nav>
+                >
+                  Femme
+                  <span
+                    className={cn(
+                      "absolute -bottom-1 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300",
+                      isScrolled ? "bg-[#415b58]" : "bg-white",
+                    )}
+                  />
+                </button>
+              </nav>
 
-            {/* Right Side Icons */}
-            <div className="flex items-center space-x-4">
-              {/* Desktop Action Icons - Search and Shopping Bag */}
-              <div className="hidden md:flex items-center space-x-4">
-                <button
-                  className={cn(
-                    "transition-colors",
-                    isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
-                  )}
-                  aria-label="Rechercher"
-                >
-                  <Search size={20} />
-                </button>
-                <button
-                  onClick={openCart}
-                  className={cn(
-                    "transition-colors relative",
-                    isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
-                  )}
-                  aria-label="Panier"
-                >
-                  <ShoppingBag size={20} />
-                  {totalItems > 0 && (
-                    <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#415b58] text-white text-xs flex items-center justify-center cart-counter">
-                      {totalItems}
-                    </span>
-                  )}
-                </button>
-              </div>
+              {/* Right Side Icons */}
+              <div className="flex items-center space-x-4">
+                {/* Desktop Action Icons - Search and Shopping Bag */}
+                <div className="hidden md:flex items-center space-x-4">
+                  <button
+                    className={cn(
+                      "transition-colors",
+                      isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
+                    )}
+                    aria-label="Rechercher"
+                  >
+                    <Search size={20} />
+                  </button>
+                  <button
+                    onClick={openCart}
+                    className={cn(
+                      "transition-colors relative",
+                      isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
+                    )}
+                    aria-label="Panier"
+                  >
+                    <ShoppingBag size={20} />
+                    {totalItems > 0 && (
+                      <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#415b58] text-white text-xs flex items-center justify-center cart-counter">
+                        {totalItems}
+                      </span>
+                    )}
+                  </button>
+                </div>
 
-              {/* Mobile Icons */}
-              <div className="flex items-center space-x-3 md:hidden">
-                <button
-                  className={cn(
-                    "transition-colors",
-                    isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
-                  )}
-                  aria-label="Rechercher"
-                >
-                  <Search size={20} />
-                </button>
-                <button
-                  onClick={openCart}
-                  className={cn(
-                    "relative transition-colors",
-                    isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
-                  )}
-                  aria-label="Panier"
-                >
-                  <ShoppingBag size={20} />
-                  {totalItems > 0 && (
-                    <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#415b58] text-white text-xs flex items-center justify-center cart-counter">
-                      {totalItems}
-                    </span>
-                  )}
-                </button>
+                {/* Mobile Icons */}
+                <div className="flex items-center space-x-3 md:hidden">
+                  <button
+                    className={cn(
+                      "transition-colors",
+                      isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
+                    )}
+                    aria-label="Rechercher"
+                  >
+                    <Search size={20} />
+                  </button>
+                  <button
+                    onClick={openCart}
+                    className={cn(
+                      "relative transition-colors",
+                      isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
+                    )}
+                    aria-label="Panier"
+                  >
+                    <ShoppingBag size={20} />
+                    {totalItems > 0 && (
+                      <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-[#415b58] text-white text-xs flex items-center justify-center cart-counter">
+                        {totalItems}
+                      </span>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>

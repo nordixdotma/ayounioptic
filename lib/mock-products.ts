@@ -23,7 +23,7 @@ export const mockProducts: Product[] = [
     image: "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&h=400&fit=crop&crop=center",
     images: [
       "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&h=400&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1585305849148-49a2b107b551?w=400&h=400&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&h=400&fit=crop&crop=center",
       "https://images.unsplash.com/photo-1607522379027-bb549e9f131d?w=400&h=400&fit=crop&crop=center",
       "https://images.unsplash.com/photo-1556306535-38febf6782e7?w=400&h=400&fit=crop&crop=center",
     ],
@@ -56,7 +56,7 @@ export const mockProducts: Product[] = [
     image: "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&h=400&fit=crop&crop=center",
     images: [
       "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&h=400&fit=crop&crop=center",
-      "https://images.unsplash.com/photo-1585305849148-49a2b107b551?w=400&h=400&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=400&h=400&fit=crop&crop=center",
     ],
     category: "homme",
     type: "vue",

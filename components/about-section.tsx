@@ -92,7 +92,7 @@ export default function AboutSection() {
             }`}
           >
             <img
-              src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=500&h=500&fit=crop&crop=center"
+              src="/logo1.jpg"
               alt="Magasin Ayouni Optic"
               className="w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-105"
             />
