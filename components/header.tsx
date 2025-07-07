@@ -90,12 +90,12 @@ export default function Header({ forceWhite = false }: HeaderProps) {
     open: {
       x: 0,
       opacity: 1,
-      transition: { type: "spring", stiffness: 300, damping: 30 },
+      transition: { type: "spring" as const, stiffness: 300, damping: 30 },
     },
     exit: {
       x: "-100%",
       opacity: 0,
-      transition: { ease: "easeInOut", duration: 0.3 },
+      transition: { ease: "easeInOut" as const, duration: 0.3 },
     },
   }
 
@@ -112,12 +112,12 @@ export default function Header({ forceWhite = false }: HeaderProps) {
     visible: {
       height: "auto",
       opacity: 1,
-      transition: { duration: 0.3, ease: "easeInOut" },
+      transition: { duration: 0.3, ease: "easeInOut" as const },
     },
     hidden: {
       height: 0,
       opacity: 0,
-      transition: { duration: 0.3, ease: "easeInOut" },
+      transition: { duration: 0.3, ease: "easeInOut" as const },
     },
   }
 

@@ -194,7 +194,7 @@ export default function ProductFilter({
         {hasActiveFilters && (
           <button
             onClick={resetFilters}
-            className="bg-red-500 text-white hover:bg-red-600 font-black text-sm px-4 py-2.5 transition-colors flex items-center justify-center w-2/12 transition-all duration-200"
+            className="bg-red-500 text-white hover:bg-red-600 font-black text-sm px-4 py-2.5 transition-colors flex items-center justify-center w-2/12 duration-200"
           >
             <X className="w-4 h-4 mr-1.5" />
             <span className="hidden md:inline">Effacer</span>

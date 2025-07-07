@@ -44,7 +44,6 @@ export default function HeroSection() {
       className="relative overflow-hidden"
       style={{
         height: viewportHeight,
-        minHeight: "100vh",
         minHeight: "100dvh", // For browsers that support dynamic viewport units
       }}
     >

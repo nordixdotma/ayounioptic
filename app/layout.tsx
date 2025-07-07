@@ -26,6 +26,7 @@ export default function RootLayout({
     <html lang="fr" className={roboto.variable} translate="no">
       <head>
         <meta name="google" content="notranslate" />
+        <link rel="icon" href="/whitelogo.png" sizes="any" />
       </head>
       <body className="font-roboto antialiased">
         <CartProvider>{children}</CartProvider>
