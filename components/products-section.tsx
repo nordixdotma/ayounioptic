@@ -29,19 +29,11 @@ export default function ProductsSection({ category, type }: ProductsSectionProps
   // Filter products by category and type
   const categoryProducts = mockProducts.filter((product) => product.category === category && product.type === type)
 
-  // Extract unique brands from filtered products
-  const brands = [...new Set(categoryProducts.map((p) => p.brand).filter(Boolean))]
-
   // Apply additional filters
   const filteredProducts = useMemo(() => {
     const filtered = categoryProducts.filter((product) => {
       // Search filter
       if (searchTerm && !product.name.toLowerCase().includes(searchTerm.toLowerCase())) {
-        return false
-      }
-
-      // Brand filter
-      if (filters.brands.length > 0 && !filters.brands.includes(product.brand)) {
         return false
       }
 
@@ -63,8 +55,6 @@ export default function ProductsSection({ category, type }: ProductsSectionProps
           return b.price - a.price
         case "name":
           return a.name.localeCompare(b.name)
-        case "brand":
-          return a.brand.localeCompare(b.brand)
         case "newest":
         default:
           return b.id - a.id
@@ -80,7 +70,7 @@ export default function ProductsSection({ category, type }: ProductsSectionProps
         <ProductFilter
           onFilterChange={setFilters}
           onSearchChange={setSearchTerm}
-          brands={brands}
+          brands={[]} // No brands anymore
           totalProducts={categoryProducts.length}
           filteredCount={filteredProducts.length}
         />

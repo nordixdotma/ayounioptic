@@ -29,10 +29,50 @@ export default function CartModal() {
 
   const handleSubmitOrder = async (e: React.FormEvent) => {
     e.preventDefault()
-    alert("Commande envoyée avec succès!")
-    closeCart()
-    setIsCheckingOut(false)
-    clearCart()
+
+    // Create order object
+    const order = {
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      customerInfo: formData,
+      items: items.map((item) => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        category: item.category,
+        type: item.type,
+        prescriptionFileName: item.prescriptionFileName || null,
+        size: item.size || null,
+        color: item.color || null,
+      })),
+      totalPrice: totalPrice,
+      totalItems: totalItems,
+    }
+
+    // Save order to localStorage
+    try {
+      const existingOrders = JSON.parse(localStorage.getItem("ayouni-orders") || "[]")
+      existingOrders.push(order)
+      localStorage.setItem("ayouni-orders", JSON.stringify(existingOrders))
+
+      alert("Commande enregistrée avec succès! Nous vous contacterons bientôt.")
+      closeCart()
+      setIsCheckingOut(false)
+      clearCart()
+
+      // Reset form
+      setFormData({
+        fullName: "",
+        email: "",
+        phone: "",
+        city: "",
+        address: "",
+      })
+    } catch (error) {
+      console.error("Error saving order:", error)
+      alert("Erreur lors de l'enregistrement de la commande. Veuillez réessayer.")
+    }
   }
 
   const handleWhatsAppOrder = () => {

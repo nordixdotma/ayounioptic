@@ -40,7 +40,8 @@ export default function ProductFilter({
   filteredCount,
 }: ProductFilterProps) {
   const [isLoaded, setIsLoaded] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
+  // Remove the local searchTerm state since it's now handled by the parent
+  // const [searchTerm, setSearchTerm] = useState("")
   const [filters, setFilters] = useState<FilterState>({
     price: "Tous les prix",
     sort: "Plus récent",
@@ -57,7 +58,7 @@ export default function ProductFilter({
   }
 
   // Check if any filter is applied
-  const hasActiveFilters = filters.price !== "Tous les prix" || searchTerm !== ""
+  const hasActiveFilters = filters.price !== "Tous les prix"
 
   // Get price ranges
   const getPriceRanges = () => [
@@ -105,8 +106,8 @@ export default function ProductFilter({
   }, [filters, onFilterChange])
 
   useEffect(() => {
-    onSearchChange(searchTerm)
-  }, [searchTerm, onSearchChange])
+    // Removed searchTerm dependency
+  }, [onSearchChange])
 
   const getPriceRangeFromString = (priceString: string) => {
     switch (priceString) {
@@ -160,7 +161,7 @@ export default function ProductFilter({
       price: "Tous les prix",
       sort: "Plus récent",
     })
-    setSearchTerm("")
+    // Don't reset search here since it's handled by URL params
   }
 
   const resetFilter = (type: FilterType) => {
@@ -185,17 +186,10 @@ export default function ProductFilter({
             type="text"
             placeholder="Rechercher des lunettes..."
             className="w-full pl-10 pr-4 py-2.5 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#415b58] focus:border-transparent font-normal"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => onSearchChange(e.target.value)}
+            defaultValue=""
           />
-          {searchTerm && (
-            <button
-              onClick={() => setSearchTerm("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#415b58] hover:text-[#5a7d79] transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          )}
+          {/* Remove the X button for clearing search since it's handled by URL params in search page */}
         </div>
         {hasActiveFilters && (
           <button

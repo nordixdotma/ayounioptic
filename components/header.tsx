@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import CategoryModal from "./category-modal"
 import { useCart } from "@/lib/cart-context"
+import SearchOverlay from "./search-overlay"
 
 interface HeaderProps {
   forceWhite?: boolean
@@ -21,6 +22,7 @@ export default function Header({ forceWhite = false }: HeaderProps) {
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<"homme" | "femme" | null>(null)
   const { totalItems, openCart } = useCart()
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
 
   // Update window height on mount and resize
   useEffect(() => {
@@ -177,19 +179,15 @@ export default function Header({ forceWhite = false }: HeaderProps) {
                   </button>
                 </div>
 
-              {/* Logo */}
-              <Link href="/" className="flex items-center">
-                <img
-                  src={
-                    isScrolled
-                      ? "/logoblack.png"
-                      : "/whitelogo.png"
-                  }
-                  alt="Ayouni Optic Logo"
-                  className="h-10 md:h-12 w-auto transition-opacity duration-300"
-                />
-              </Link>
-            </div>
+                {/* Logo */}
+                <Link href="/" className="flex items-center">
+                  <img
+                    src={isScrolled ? "/logoblack.png" : "/whitelogo.png"}
+                    alt="Ayouni Optic Logo"
+                    className="h-10 md:h-12 w-auto transition-opacity duration-300"
+                  />
+                </Link>
+              </div>
 
               {/* Desktop Navigation - Centered */}
               <nav className="hidden md:flex items-center space-x-8 flex-1 justify-center">
@@ -248,6 +246,7 @@ export default function Header({ forceWhite = false }: HeaderProps) {
                 {/* Desktop Action Icons - Search and Shopping Bag */}
                 <div className="hidden md:flex items-center space-x-4">
                   <button
+                    onClick={() => setIsSearchOpen(true)}
                     className={cn(
                       "transition-colors",
                       isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
@@ -276,6 +275,7 @@ export default function Header({ forceWhite = false }: HeaderProps) {
                 {/* Mobile Icons */}
                 <div className="flex items-center space-x-3 md:hidden">
                   <button
+                    onClick={() => setIsSearchOpen(true)}
                     className={cn(
                       "transition-colors",
                       isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
@@ -332,11 +332,7 @@ export default function Header({ forceWhite = false }: HeaderProps) {
                 <div className="flex flex-col h-full">
                   {/* Menu Header */}
                   <div className="flex justify-between items-center p-5 border-b border-gray-100">
-                    <img
-                      src="/fulllogoblack.png"
-                      alt="Ayouni Optic Logo"
-                      className="h-12 w-auto"
-                    />
+                    <img src="/fulllogoblack.png" alt="Ayouni Optic Logo" className="h-12 w-auto" />
                     <button
                       onClick={() => setIsMenuOpen(false)}
                       className="p-2 hover:bg-[#415b58]/10 transition-colors"
@@ -399,6 +395,9 @@ export default function Header({ forceWhite = false }: HeaderProps) {
 
       {/* Category Modal - Outside header */}
       <CategoryModal isOpen={categoryModalOpen} onClose={closeCategoryModal} category={selectedCategory} />
+
+      {/* Search Overlay */}
+      <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
     </>
   )
 }
