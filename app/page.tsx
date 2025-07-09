@@ -7,6 +7,7 @@ import HeroSection from "@/components/hero-section"
 import CategoriesSection from "@/components/categories-section"
 import AboutSection from "@/components/about-section"
 import BannerSection from "@/components/marquee-banner"
+import ServicesSection from "@/components/vos-avantage"
 import CartModal from "@/components/cart-modal"
 import TestimonialsSection from "@/components/testimonials-section"
 
@@ -19,6 +20,7 @@ export default function HomePage() {
       <BannerSection />
       <CategoriesSection />
       <AboutSection />
+      <ServicesSection />
       <BannerSection />
       <TestimonialsSection />
 
