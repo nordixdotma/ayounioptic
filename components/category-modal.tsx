@@ -7,13 +7,13 @@ import Link from "next/link"
 interface CategoryModalProps {
   isOpen: boolean
   onClose: () => void
-  category: "homme" | "femme" | null
+  category: "homme" | "femme" | "lenses" | null
 }
 
 export default function CategoryModal({ isOpen, onClose, category }: CategoryModalProps) {
   if (!category) return null
 
-  const categoryTitle = category === "homme" ? "Homme" : "Femme"
+  const categoryTitle = category === "homme" ? "Homme" : category === "femme" ? "Femme" : "Lentilles"
 
   const overlayVariants = {
     hidden: { opacity: 0 },
@@ -35,6 +35,87 @@ export default function CategoryModal({ isOpen, onClose, category }: CategoryMod
       y: 50,
       transition: { duration: 0.2 },
     },
+  }
+
+  const renderOptions = () => {
+    if (category === "lenses") {
+      return (
+        <>
+          {/* Transparent Lenses */}
+          <Link href={`/${category}/transparent`} className="group" onClick={onClose}>
+            <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+              <div className="aspect-square overflow-hidden">
+                <img
+                  src="https://images.unsplash.com/photo-1582142306909-195724d33c9f?w=300&h=300&fit=crop&crop=center"
+                  alt="Lentilles Transparentes"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div className="p-2 sm:p-4 text-center">
+                <h3 className="text-sm sm:text-lg font-black text-[#415b58] mb-1">Transparentes</h3>
+                <p className="text-gray-600 font-normal text-xs sm:text-sm">Vision naturelle</p>
+              </div>
+            </div>
+          </Link>
+
+          {/* Colored Lenses */}
+          <Link href={`/${category}/colored`} className="group" onClick={onClose}>
+            <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+              <div className="aspect-square overflow-hidden">
+                <img
+                  src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=300&h=300&fit=crop&crop=center"
+                  alt="Lentilles Colorées"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div className="p-2 sm:p-4 text-center">
+                <h3 className="text-sm sm:text-lg font-black text-[#415b58] mb-1">Colorées</h3>
+                <p className="text-gray-600 font-normal text-xs sm:text-sm">Style et couleur</p>
+              </div>
+            </div>
+          </Link>
+        </>
+      )
+    }
+
+    // Default options for homme/femme
+    return (
+      <>
+        {/* Lunettes de Vue */}
+        <Link href={`/${category}/vue`} className="group" onClick={onClose}>
+          <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+            <div className="aspect-square overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=300&h=300&fit=crop&crop=center"
+                alt="Lunettes de Vue"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="p-2 sm:p-4 text-center">
+              <h3 className="text-sm sm:text-lg font-black text-[#415b58] mb-1">Lunettes de Vue</h3>
+              <p className="text-gray-600 font-normal text-xs sm:text-sm">Correction visuelle</p>
+            </div>
+          </div>
+        </Link>
+
+        {/* Lunettes de Soleil */}
+        <Link href={`/${category}/soleil`} className="group" onClick={onClose}>
+          <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+            <div className="aspect-square overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=300&h=300&fit=crop&crop=center"
+                alt="Lunettes de Soleil"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <div className="p-2 sm:p-4 text-center">
+              <h3 className="text-sm sm:text-lg font-black text-[#415b58] mb-1">Lunettes de Soleil</h3>
+              <p className="text-gray-600 font-normal text-xs sm:text-sm">Protection solaire</p>
+            </div>
+          </div>
+        </Link>
+      </>
+    )
   }
 
   return (
@@ -76,41 +157,7 @@ export default function CategoryModal({ isOpen, onClose, category }: CategoryMod
                 </h2>
 
                 {/* Options Grid */}
-                <div className="grid grid-cols-2 gap-2 sm:gap-4">
-                  {/* Lunettes de Vue */}
-                  <Link href={`/${category}/vue`} className="group" onClick={onClose}>
-                    <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                      <div className="aspect-square overflow-hidden">
-                        <img
-                          src="https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=300&h=300&fit=crop&crop=center"
-                          alt="Lunettes de Vue"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <div className="p-2 sm:p-4 text-center">
-                        <h3 className="text-sm sm:text-lg font-black text-[#415b58] mb-1">Lunettes de Vue</h3>
-                        <p className="text-gray-600 font-normal text-xs sm:text-sm">Correction visuelle</p>
-                      </div>
-                    </div>
-                  </Link>
-
-                  {/* Lunettes de Soleil */}
-                  <Link href={`/${category}/soleil`} className="group" onClick={onClose}>
-                    <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-                      <div className="aspect-square overflow-hidden">
-                        <img
-                          src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=300&h=300&fit=crop&crop=center"
-                          alt="Lunettes de Soleil"
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      </div>
-                      <div className="p-2 sm:p-4 text-center">
-                        <h3 className="text-sm sm:text-lg font-black text-[#415b58] mb-1">Lunettes de Soleil</h3>
-                        <p className="text-gray-600 font-normal text-xs sm:text-sm">Protection solaire</p>
-                      </div>
-                    </div>
-                  </Link>
-                </div>
+                <div className="grid grid-cols-2 gap-2 sm:gap-4">{renderOptions()}</div>
               </div>
             </motion.div>
           </motion.div>

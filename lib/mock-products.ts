@@ -5,8 +5,8 @@ export interface Product {
   oldPrice: number
   image: string
   images: string[]
-  category: "homme" | "femme"
-  type: "vue" | "soleil"
+  category: "homme" | "femme" | "eclipse" | "lenses"
+  type: "vue" | "soleil" | "eclipse" | "transparent" | "colored"
   inStock: boolean
   description?: string
 }
@@ -160,6 +160,104 @@ export const mockProducts: Product[] = [
     type: "soleil",
     inStock: false,
     description: "Design cat-eye moderne avec une allure rétro-chic. Style distinctif et féminin.",
+  },
+
+  // Eclipse - Lunettes Eclipse
+  {
+    id: 10,
+    name: "Lunettes Eclipse Professionnelles",
+    price: 2500,
+    oldPrice: 3000,
+    image: "https://images.unsplash.com/photo-1509695507497-903c140c43b0?w=400&h=400&fit=crop&crop=center",
+    images: [
+      "https://images.unsplash.com/photo-1509695507497-903c140c43b0?w=400&h=400&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=400&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1502134249126-9f3755a50d78?w=400&h=400&fit=crop&crop=center",
+    ],
+    category: "eclipse",
+    type: "eclipse",
+    inStock: true,
+    description: "Lunettes spécialisées pour l'observation sécurisée des éclipses solaires. Certification ISO 12312-2.",
+  },
+  {
+    id: 11,
+    name: "Eclipse Viewer Standard",
+    price: 1800,
+    oldPrice: 2200,
+    image: "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=400&fit=crop&crop=center",
+    images: [
+      "https://images.unsplash.com/photo-1446776877081-d282a0f896e2?w=400&h=400&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1509695507497-903c140c43b0?w=400&h=400&fit=crop&crop=center",
+    ],
+    category: "eclipse",
+    type: "eclipse",
+    inStock: true,
+    description:
+      "Lunettes d'observation solaire standard avec filtres haute qualité. Parfaites pour les amateurs d'astronomie.",
+  },
+
+  // Lenses - Transparent
+  {
+    id: 12,
+    name: "Lentilles Journalières Transparentes",
+    price: 450,
+    oldPrice: 600,
+    image: "https://images.unsplash.com/photo-1582142306909-195724d33c9f?w=400&h=400&fit=crop&crop=center",
+    images: [
+      "https://images.unsplash.com/photo-1582142306909-195724d33c9f?w=400&h=400&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=400&fit=crop&crop=center",
+    ],
+    category: "lenses",
+    type: "transparent",
+    inStock: true,
+    description: "Lentilles de contact journalières transparentes pour un confort optimal toute la journée.",
+  },
+  {
+    id: 13,
+    name: "Lentilles Mensuelles Transparentes",
+    price: 800,
+    oldPrice: 1000,
+    image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=400&fit=crop&crop=center",
+    images: [
+      "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=400&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1582142306909-195724d33c9f?w=400&h=400&fit=crop&crop=center",
+    ],
+    category: "lenses",
+    type: "transparent",
+    inStock: true,
+    description: "Lentilles mensuelles transparentes avec technologie avancée pour une vision claire et nette.",
+  },
+
+  // Lenses - Colored
+  {
+    id: 14,
+    name: "Lentilles Colorées Bleues",
+    price: 650,
+    oldPrice: 850,
+    image: "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop&crop=center",
+    images: [
+      "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=400&h=400&fit=crop&crop=center",
+    ],
+    category: "lenses",
+    type: "colored",
+    inStock: true,
+    description: "Lentilles colorées bleues pour transformer votre regard. Confort et style réunis.",
+  },
+  {
+    id: 15,
+    name: "Lentilles Colorées Vertes",
+    price: 650,
+    oldPrice: 850,
+    image: "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=400&h=400&fit=crop&crop=center",
+    images: [
+      "https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=400&h=400&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=400&fit=crop&crop=center",
+    ],
+    category: "lenses",
+    type: "colored",
+    inStock: false,
+    description: "Lentilles colorées vertes pour un look naturel et éclatant. Qualité premium garantie.",
   },
 ]
 

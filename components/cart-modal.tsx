@@ -12,10 +12,9 @@ export default function CartModal() {
   const [isCheckingOut, setIsCheckingOut] = useState(false)
   const [formData, setFormData] = useState({
     fullName: "",
-    email: "",
     phone: "",
-    city: "",
     address: "",
+    comment: "",
   })
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -64,10 +63,9 @@ export default function CartModal() {
       // Reset form
       setFormData({
         fullName: "",
-        email: "",
         phone: "",
-        city: "",
         address: "",
+        comment: "",
       })
     } catch (error) {
       console.error("Error saving order:", error)
@@ -159,49 +157,17 @@ export default function CartModal() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-black text-gray-700 mb-1">
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        placeholder="votre@email.com"
-                        className="w-full px-3 py-2 text-sm border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#415b58] focus:border-[#415b58] font-normal"
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="phone" className="block text-sm font-black text-gray-700 mb-1">
-                        Téléphone *
-                      </label>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        placeholder="+212 XXXXXXXXX"
-                        className="w-full px-3 py-2 text-sm border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#415b58] focus:border-[#415b58] font-normal"
-                        required
-                      />
-                    </div>
-                  </div>
-
                   <div>
-                    <label htmlFor="city" className="block text-sm font-black text-gray-700 mb-1">
-                      Ville *
+                    <label htmlFor="phone" className="block text-sm font-black text-gray-700 mb-1">
+                      Téléphone *
                     </label>
                     <input
-                      type="text"
-                      id="city"
-                      name="city"
-                      value={formData.city}
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
                       onChange={handleInputChange}
-                      placeholder="Votre ville"
+                      placeholder="+212 XXXXXXXXX"
                       className="w-full px-3 py-2 text-sm border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#415b58] focus:border-[#415b58] font-normal"
                       required
                     />
@@ -220,6 +186,21 @@ export default function CartModal() {
                       placeholder="Votre adresse complète"
                       className="w-full px-3 py-2 text-sm border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#415b58] focus:border-[#415b58] font-normal"
                       required
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="comment" className="block text-sm font-black text-gray-700 mb-1">
+                      Commentaire
+                    </label>
+                    <textarea
+                      id="comment"
+                      name="comment"
+                      rows={2}
+                      value={formData.comment}
+                      onChange={handleInputChange}
+                      placeholder="Commentaire ou instructions spéciales (optionnel)"
+                      className="w-full px-3 py-2 text-sm border border-gray-300 focus:outline-none focus:ring-1 focus:ring-[#415b58] focus:border-[#415b58] font-normal"
                     />
                   </div>
                 </form>

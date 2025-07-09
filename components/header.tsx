@@ -20,7 +20,7 @@ export default function Header({ forceWhite = false }: HeaderProps) {
   const [showBanner, setShowBanner] = useState(true)
   const headerRef = useRef<HTMLElement>(null)
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<"homme" | "femme" | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<"homme" | "femme" | "lenses" | null>(null)
   const { totalItems, openCart } = useCart()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
@@ -126,7 +126,7 @@ export default function Header({ forceWhite = false }: HeaderProps) {
     { name: "Contact", href: "/contact" },
   ]
 
-  const handleCategoryClick = (category: "homme" | "femme") => {
+  const handleCategoryClick = (category: "homme" | "femme" | "lenses") => {
     setSelectedCategory(category)
     setCategoryModalOpen(true)
   }
@@ -232,6 +232,36 @@ export default function Header({ forceWhite = false }: HeaderProps) {
                   )}
                 >
                   Femme
+                  <span
+                    className={cn(
+                      "absolute -bottom-1 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300",
+                      isScrolled ? "bg-[#415b58]" : "bg-white",
+                    )}
+                  />
+                </button>
+                <Link
+                  href="/eclipse/eclipse"
+                  className={cn(
+                    "text-base relative group transition-colors font-black",
+                    isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
+                  )}
+                >
+                  Eclipse
+                  <span
+                    className={cn(
+                      "absolute -bottom-1 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300",
+                      isScrolled ? "bg-[#415b58]" : "bg-white",
+                    )}
+                  />
+                </Link>
+                <button
+                  onClick={() => handleCategoryClick("lenses")}
+                  className={cn(
+                    "text-base relative group transition-colors font-black",
+                    isScrolled ? "text-[#415b58] hover:text-[#5a7d79]" : "text-white hover:text-white/80",
+                  )}
+                >
+                  Lentilles
                   <span
                     className={cn(
                       "absolute -bottom-1 left-0 w-0 h-0.5 group-hover:w-full transition-all duration-300",
@@ -382,6 +412,26 @@ export default function Header({ forceWhite = false }: HeaderProps) {
                           className="block text-[#415b58] hover:text-[#5a7d79] hover:bg-[#415b58]/5 transition-colors font-black py-3 px-0 text-lg"
                         >
                           Femme
+                        </button>
+                      </motion.div>
+                      <motion.div key="eclipse" custom={4} variants={menuItemVariants} initial="closed" animate="open">
+                        <Link
+                          href="/eclipse/eclipse"
+                          className="block text-[#415b58] hover:text-[#5a7d79] hover:bg-[#415b58]/5 transition-colors font-black py-3 px-0 text-lg"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Eclipse
+                        </Link>
+                      </motion.div>
+                      <motion.div key="lenses" custom={5} variants={menuItemVariants} initial="closed" animate="open">
+                        <button
+                          onClick={() => {
+                            handleCategoryClick("lenses")
+                            setIsMenuOpen(false)
+                          }}
+                          className="block text-[#415b58] hover:text-[#5a7d79] hover:bg-[#415b58]/5 transition-colors font-black py-3 px-0 text-lg"
+                        >
+                          Lentilles
                         </button>
                       </motion.div>
                     </nav>

@@ -13,9 +13,9 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<"homme" | "femme" | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<"homme" | "femme" | "lenses" | null>(null)
 
-  const handleCategoryClick = (category: "homme" | "femme") => {
+  const handleCategoryClick = (category: "homme" | "femme" | "lenses") => {
     setSelectedCategory(category)
     setCategoryModalOpen(true)
   }
@@ -32,11 +32,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="mb-8 md:mb-0">
             <Link href="/" className="inline-block">
-              <img
-                src="/fulllogowhite.png"
-                alt="Ayouni Optic Logo"
-                className="h-14 w-auto brightness-0 invert mb-2"
-              />
+              <img src="/fulllogowhite.png" alt="Ayouni Optic Logo" className="h-14 w-auto brightness-0 invert mb-2" />
             </Link>
             <p className="mt-2 text-sm text-white/70 max-w-xs">
               Votre spécialiste en optique à Marrakech, alliant qualité et expertise.
@@ -72,6 +68,24 @@ export default function Footer() {
                   className="text-white hover:text-white/80 relative group transition-colors font-black"
                 >
                   Femme
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
+                </button>
+              </li>
+              <li>
+                <Link
+                  href="/eclipse/eclipse"
+                  className="text-white hover:text-white/80 relative group transition-colors font-black"
+                >
+                  Eclipse
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
+                </Link>
+              </li>
+              <li>
+                <button
+                  onClick={() => handleCategoryClick("lenses")}
+                  className="text-white hover:text-white/80 relative group transition-colors font-black"
+                >
+                  Lentilles
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
                 </button>
               </li>
