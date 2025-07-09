@@ -6,7 +6,9 @@ import WhatsAppButton from "@/components/whatsapp-button"
 import HeroSection from "@/components/hero-section"
 import CategoriesSection from "@/components/categories-section"
 import AboutSection from "@/components/about-section"
+import BannerSection from "@/components/marquee-banner"
 import CartModal from "@/components/cart-modal"
+import TestimonialsSection from "@/components/testimonials-section"
 
 export default function HomePage() {
   return (
@@ -14,8 +16,11 @@ export default function HomePage() {
       <Header />
 
       <HeroSection />
+      <BannerSection />
       <CategoriesSection />
       <AboutSection />
+      <BannerSection />
+      <TestimonialsSection />
 
       <Footer />
       <WhatsAppButton />

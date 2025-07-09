@@ -33,7 +33,7 @@ export default function AboutSection() {
   }, [])
 
   return (
-    <section ref={sectionRef} id="about" className="py-16 md:py-24 bg-white overflow-hidden">
+    <section ref={sectionRef} id="about" className="pt-12 pb-0 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-12 items-center">
           <div className="md:col-span-3">

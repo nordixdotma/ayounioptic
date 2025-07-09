@@ -20,7 +20,7 @@ export default function CategoriesSection() {
 
   return (
     <>
-      <section className="py-16 px-4 bg-white">
+      <section className="py-12 px-4 bg-white">
         <div className="max-w-6xl mx-auto">
           {/* Section Title */}
           <div className="text-center mb-12">
@@ -84,7 +84,7 @@ export default function CategoriesSection() {
               <div className="relative overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
                 <div className="aspect-[3/2] md:aspect-[4/3] overflow-hidden">
                   <img
-                    src="https://images.unsplash.com/photo-1582142306909-195724d33c9f?w=500&h=350&fit=crop&crop=center"
+                    src="https://plus.unsplash.com/premium_photo-1663048816150-1638f707cea2?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                     alt="Lentilles de Contact"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
