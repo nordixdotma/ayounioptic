@@ -20,7 +20,7 @@ export default function ServicesSection() {
             <BadgeCheck className="w-10 h-10 text-[#415b58] mb-4" />
             <h3 className="text-xl font-bold text-gray-900 mb-3 font-optima">100% Remboursé</h3>
             <p className="text-gray-700 leading-relaxed">
-              Dans tous nos magasins, la Réforme 100% Santé donne droit à un Reste à charge de 0€ sur tout notre
+              Dans tous nos magasins, la Réforme 100% Santé donne droit à un Reste à charge de 0DH sur tout notre
               catalogue.
             </p>
           </div>
