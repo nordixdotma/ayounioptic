@@ -19,7 +19,7 @@ export default function WhatsAppButton() {
         duration: 1.5,
         repeat: Number.POSITIVE_INFINITY,
         repeatType: "loop" as const,
-        ease: "easeInOut",
+        ease: "easeInOut" as const,
       },
     },
   }
@@ -34,7 +34,7 @@ export default function WhatsAppButton() {
         duration: 2,
         repeat: Number.POSITIVE_INFINITY,
         repeatType: "loop" as const,
-        ease: "easeInOut",
+        ease: "easeInOut" as const,
       },
     },
   }

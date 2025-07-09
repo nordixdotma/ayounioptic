@@ -95,7 +95,7 @@ export default function Footer() {
           {/* Social Icons */}
           <div className="flex space-x-4">
             <a
-              href="https://facebook.com"
+              href="https://web.facebook.com/profile.php?id=61575855392477"
               target="_blank"
               rel="noopener noreferrer"
               className="w-10 h-10 border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"
@@ -104,7 +104,7 @@ export default function Footer() {
               <Facebook size={18} className="text-white" />
             </a>
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/ayouni_optic"
               target="_blank"
               rel="noopener noreferrer"
               className="w-10 h-10 border border-white/20 flex items-center justify-center hover:bg-white/10 transition-colors"

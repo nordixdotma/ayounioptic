@@ -3,6 +3,8 @@
 import type React from "react"
 import { createContext, useContext, useReducer, useEffect } from "react"
 import type { Product } from "./mock-products"
+// Import the glassType type from Product
+type GlassType = Product extends { glassType?: infer T } ? T : undefined;
 
 export interface CartItem extends Product {
   quantity: number
@@ -22,7 +24,14 @@ interface CartState {
 type CartAction =
   | {
       type: "ADD_ITEM"
-      payload: { product: Product; quantity: number; size?: string; color?: string; prescriptionFile?: File }
+      payload: {
+        product: Product
+        quantity: number
+        size?: string
+        color?: string
+        prescriptionFile?: File
+        glassType?: GlassType
+      }
     }
   | { type: "REMOVE_ITEM"; payload: { id: number; size?: string; color?: string } }
   | { type: "UPDATE_QUANTITY"; payload: { id: number; quantity: number; size?: string; color?: string } }
@@ -36,7 +45,14 @@ const CartContext = createContext<{
   totalItems: number
   totalPrice: number
   isCartOpen: boolean
-  addItem: (product: Product, quantity: number, size?: string, color?: string, prescriptionFile?: File) => void
+  addItem: (
+    product: Product,
+    quantity: number,
+    size?: string,
+    color?: string,
+    prescriptionFile?: File,
+    glassType?: GlassType,
+  ) => void
   removeItem: (id: number, size?: string, color?: string) => void
   updateQuantity: (id: number, quantity: number, size?: string, color?: string) => void
   clearCart: () => void
@@ -47,9 +63,9 @@ const CartContext = createContext<{
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case "ADD_ITEM": {
-      const { product, quantity, size, color, prescriptionFile } = action.payload
+      const { product, quantity, size, color, prescriptionFile, glassType } = action.payload
       const existingItemIndex = state.items.findIndex(
-        (item) => item.id === product.id && item.size === size && item.color === color,
+        (item) => item.id === product.id && item.size === size && item.color === color && item.glassType === glassType,
       )
 
       let newItems: CartItem[]
@@ -74,6 +90,7 @@ function cartReducer(state: CartState, action: CartAction): CartState {
             color,
             prescriptionFile,
             prescriptionFileName: prescriptionFile?.name,
+            glassType,
           },
         ]
       }
@@ -163,8 +180,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem("ayouni-cart", JSON.stringify(itemsToSave))
   }, [state.items])
 
-  const addItem = (product: Product, quantity: number, size?: string, color?: string, prescriptionFile?: File) => {
-    dispatch({ type: "ADD_ITEM", payload: { product, quantity, size, color, prescriptionFile } })
+  const addItem = (
+    product: Product,
+    quantity: number,
+    size?: string,
+    color?: string,
+    prescriptionFile?: File,
+    glassType?: GlassType,
+  ) => {
+    dispatch({ type: "ADD_ITEM", payload: { product, quantity, size, color, prescriptionFile, glassType } })
   }
 
   const removeItem = (id: number, size?: string, color?: string) => {

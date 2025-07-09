@@ -9,7 +9,31 @@ export interface Product {
   type: "vue" | "soleil" | "eclipse" | "transparent" | "colored"
   inStock: boolean
   description?: string
+  glassType?:
+    | "organique_blanc"
+    | "organique_antireflet"
+    | "organique_anti_lumiere"
+    | "organique_photogris_antireflet"
+    | "organique_photogris_anti_lumiere"
+    | "devis_amincis"
 }
+
+export const glassTypeOptions = [
+  { value: "devis_amincis", label: "Devis amincis et grands mesures", shortLabel: "Devis amincis" },
+  { value: "organique_blanc", label: "Organique blanc", shortLabel: "Organique blanc" },
+  { value: "organique_antireflet", label: "Organique antireflet", shortLabel: "Antireflet" },
+  { value: "organique_anti_lumiere", label: "Organique anti lumière bleue", shortLabel: "Anti lumière bleue" },
+  {
+    value: "organique_photogris_antireflet",
+    label: "Organique photogris antireflet",
+    shortLabel: "Photogris antireflet",
+  },
+  {
+    value: "organique_photogris_anti_lumiere",
+    label: "Organique photogris anti lumière bleue",
+    shortLabel: "Photogris anti lumière",
+  },
+]
 
 export const mockProducts: Product[] = [
   // Homme - Lunettes de Vue
@@ -28,6 +52,7 @@ export const mockProducts: Product[] = [
     category: "homme",
     type: "vue",
     inStock: true,
+    glassType: "devis_amincis",
     description:
       "Monture classique pour homme alliant élégance et confort. Parfaite pour un usage quotidien avec un style intemporel.",
   },
@@ -45,6 +70,7 @@ export const mockProducts: Product[] = [
     category: "homme",
     type: "vue",
     inStock: true,
+    glassType: "devis_amincis",
     description: "Lunettes élégantes parfaites pour le milieu professionnel. Design moderne et sophistiqué.",
   },
   {
@@ -60,6 +86,7 @@ export const mockProducts: Product[] = [
     category: "homme",
     type: "vue",
     inStock: false,
+    glassType: "devis_amincis",
     description: "Monture sportive conçue pour les activités physiques. Légère et résistante.",
   },
 
@@ -78,6 +105,7 @@ export const mockProducts: Product[] = [
     category: "homme",
     type: "soleil",
     inStock: true,
+    glassType: "devis_amincis",
     description: "Lunettes aviateur classiques avec protection UV maximale. Style iconique et intemporel.",
   },
   {
@@ -93,6 +121,7 @@ export const mockProducts: Product[] = [
     category: "homme",
     type: "soleil",
     inStock: true,
+    glassType: "devis_amincis",
     description: "Lunettes de soleil sportives avec verres polarisés. Idéales pour les activités extérieures.",
   },
 
@@ -111,6 +140,7 @@ export const mockProducts: Product[] = [
     category: "femme",
     type: "vue",
     inStock: true,
+    glassType: "devis_amincis",
     description: "Monture élégante pour femme avec un design raffiné. Parfaite pour toutes les occasions.",
   },
   {
@@ -126,6 +156,7 @@ export const mockProducts: Product[] = [
     category: "femme",
     type: "vue",
     inStock: true,
+    glassType: "devis_amincis",
     description: "Style vintage chic avec une touche moderne. Design unique et sophistiqué.",
   },
 
@@ -144,6 +175,7 @@ export const mockProducts: Product[] = [
     category: "femme",
     type: "soleil",
     inStock: true,
+    glassType: "devis_amincis",
     description: "Lunettes de soleil glamour avec un style sophistiqué. Protection UV et élégance réunies.",
   },
   {
@@ -159,6 +191,7 @@ export const mockProducts: Product[] = [
     category: "femme",
     type: "soleil",
     inStock: false,
+    glassType: "devis_amincis",
     description: "Design cat-eye moderne avec une allure rétro-chic. Style distinctif et féminin.",
   },
 
@@ -177,6 +210,7 @@ export const mockProducts: Product[] = [
     category: "eclipse",
     type: "eclipse",
     inStock: true,
+    glassType: "devis_amincis",
     description: "Lunettes spécialisées pour l'observation sécurisée des éclipses solaires. Certification ISO 12312-2.",
   },
   {
@@ -192,6 +226,7 @@ export const mockProducts: Product[] = [
     category: "eclipse",
     type: "eclipse",
     inStock: true,
+    glassType: "devis_amincis",
     description:
       "Lunettes d'observation solaire standard avec filtres haute qualité. Parfaites pour les amateurs d'astronomie.",
   },
@@ -210,6 +245,7 @@ export const mockProducts: Product[] = [
     category: "lenses",
     type: "transparent",
     inStock: true,
+    glassType: "devis_amincis",
     description: "Lentilles de contact journalières transparentes pour un confort optimal toute la journée.",
   },
   {
@@ -225,6 +261,7 @@ export const mockProducts: Product[] = [
     category: "lenses",
     type: "transparent",
     inStock: true,
+    glassType: "devis_amincis",
     description: "Lentilles mensuelles transparentes avec technologie avancée pour une vision claire et nette.",
   },
 
@@ -242,6 +279,7 @@ export const mockProducts: Product[] = [
     category: "lenses",
     type: "colored",
     inStock: true,
+    glassType: "devis_amincis",
     description: "Lentilles colorées bleues pour transformer votre regard. Confort et style réunis.",
   },
   {
@@ -257,6 +295,7 @@ export const mockProducts: Product[] = [
     category: "lenses",
     type: "colored",
     inStock: false,
+    glassType: "devis_amincis",
     description: "Lentilles colorées vertes pour un look naturel et éclatant. Qualité premium garantie.",
   },
 ]

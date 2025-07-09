@@ -4,8 +4,10 @@ import type React from "react"
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ShoppingBag, Check, ArrowLeft, ArrowRight, Upload, X, FileText } from "lucide-react"
+import { ShoppingBag, Check, ArrowLeft, ArrowRight, Upload, X, FileText, ChevronDown } from "lucide-react"
 import type { Product } from "@/lib/mock-products"
+import { glassTypeOptions } from "@/lib/mock-products"
+type GlassType = Product extends { glassType?: infer T } ? T : undefined;
 import Link from "next/link"
 import { useCart } from "@/lib/cart-context"
 
@@ -16,6 +18,8 @@ interface ProductDetailProps {
 export default function ProductDetail({ product }: ProductDetailProps) {
   const [selectedImage, setSelectedImage] = useState(0)
   const [quantity, setQuantity] = useState(1)
+  const [selectedGlassType, setSelectedGlassType] = useState<GlassType>(product.glassType || "devis_amincis")
+  const [isGlassTypeOpen, setIsGlassTypeOpen] = useState(false)
   const [isAddedToCart, setIsAddedToCart] = useState(false)
   const [showPrescriptionModal, setShowPrescriptionModal] = useState(false)
   const [prescriptionFile, setPrescriptionFile] = useState<File | null>(null)
@@ -40,7 +44,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   }
 
   const addToCartWithPrescription = (file?: File) => {
-    addItem(product, quantity, undefined, undefined, file)
+    addItem(product, quantity, undefined, undefined, file, selectedGlassType)
     setIsAddedToCart(true)
     setShowPrescriptionModal(false)
     setTimeout(() => {
@@ -78,11 +82,20 @@ export default function ProductDetail({ product }: ProductDetailProps) {
     let message = `Bonjour, je suis intéressé(e) par ce produit:\n\n`
     message += `*${product.name}*\n`
     message += `Prix: ${product.price} DH\n`
+
+    // Add glass type info
+    const selectedOption = glassTypeOptions.find((option) => option.value === selectedGlassType)
+    if (selectedOption) {
+      message += `Type de verre: ${selectedOption.shortLabel}\n`
+    }
+
     message += `\nPouvez-vous me donner plus d'informations?`
 
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
   }
+
+  const selectedGlassOption = glassTypeOptions.find((option) => option.value === selectedGlassType)
 
   return (
     <>
@@ -221,6 +234,57 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                 </div>
               </div>
             )}
+
+            {/* Glass Type Selection */}
+            <div className="pt-2">
+              <h3 className="text-lg font-black text-[#415b58] mb-3">Type de verre</h3>
+              <div className="relative">
+                <button
+                  onClick={() => setIsGlassTypeOpen(!isGlassTypeOpen)}
+                  className="w-full p-3 border border-gray-300 bg-white text-left flex items-center justify-between hover:border-[#415b58] transition-colors"
+                >
+                  <span className="font-normal text-gray-700">
+                    {selectedGlassOption?.shortLabel || "Sélectionner un type"}
+                  </span>
+                  <ChevronDown
+                    size={18}
+                    className={`text-gray-400 transition-transform ${isGlassTypeOpen ? "rotate-180" : ""}`}
+                  />
+                </button>
+
+                <AnimatePresence>
+                  {isGlassTypeOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute top-full left-0 right-0 z-10 bg-white border border-gray-300 border-t-0 shadow-lg max-h-60 overflow-y-auto"
+                    >
+                      {glassTypeOptions.map((option) => (
+                        <button
+                          key={option.value}
+                          onClick={() => {
+                            setSelectedGlassType(option.value as GlassType)
+                            setIsGlassTypeOpen(false)
+                          }}
+                          className={`w-full p-3 text-left hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 ${
+                            selectedGlassType === option.value
+                              ? "bg-[#415b58]/5 text-[#415b58] font-medium"
+                              : "text-gray-700 font-normal"
+                          }`}
+                        >
+                          <div className="font-medium text-sm">{option.shortLabel}</div>
+                          {option.value === "devis_amincis" && (
+                            <div className="text-xs text-gray-500 mt-1">Demande de devis personnalisé</div>
+                          )}
+                        </button>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
 
             {/* Product Description */}
             <div className="pt-2">

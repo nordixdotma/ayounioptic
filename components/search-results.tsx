@@ -40,7 +40,13 @@ export default function SearchResults() {
           (product.type === "soleil" && "lunettes de soleil".includes(query)) ||
           (product.category === "homme" && "homme".includes(query)) ||
           (product.category === "femme" && "femme".includes(query)) ||
-          (product.description && product.description.toLowerCase().includes(query))
+          (product.description && product.description.toLowerCase().includes(query)) ||
+          (product.category === "eclipse" && ("eclipse".includes(query) || "lunettes eclipse".includes(query))) ||
+          (product.category === "lenses" && ("lentilles".includes(query) || "lenses".includes(query))) ||
+          (product.type === "transparent" &&
+            ("transparent".includes(query) || "lentilles transparentes".includes(query))) ||
+          (product.type === "colored" &&
+            ("coloré".includes(query) || "colorées".includes(query) || "lentilles colorées".includes(query)))
         )
       })
     }

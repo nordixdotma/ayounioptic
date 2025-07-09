@@ -156,11 +156,11 @@ export default function Contact() {
               <div>
                 <h4 className="text-sm sm:text-base font-black text-gray-900">Email</h4>
                 <a
-                  href="mailto:contact@ayounioptic.ma"
+                  href="mailto:Optiqueezzidi@gmail.com"
                   className="text-xs sm:text-sm text-gray-600 mt-1 hover:text-[#415b58] transition-colors block font-normal"
-                  aria-label="Envoyer un email à contact@ayounioptic.ma"
+                  aria-label="Envoyer un email à Optiqueezzidi@gmail.com"
                 >
-                  contact@ayounioptic.ma
+                  Optiqueezzidi@gmail.com
                 </a>
               </div>
             </div>
@@ -170,13 +170,13 @@ export default function Contact() {
               <div>
                 <h4 className="text-sm sm:text-base font-black text-gray-900">Instagram</h4>
                 <a
-                  href="https://instagram.com/ayounioptic"
+                  href="https://www.instagram.com/ayouni_optic/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs sm:text-sm text-gray-600 mt-1 hover:text-[#415b58] transition-colors block font-normal"
                   aria-label="Visitez notre profil Instagram @ayounioptic"
                 >
-                  @ayounioptic
+                  @ayouni_optic
                 </a>
               </div>
             </div>

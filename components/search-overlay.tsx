@@ -94,7 +94,15 @@ export default function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                 <div className="mt-4">
                   <p className="text-sm text-gray-600 mb-2 font-normal">Suggestions populaires:</p>
                   <div className="flex flex-wrap gap-2">
-                    {["Lunettes de vue", "Lunettes de soleil", "Aviateur", "Homme", "Femme"].map((suggestion) => (
+                    {[
+                      "Lunettes de vue",
+                      "Lunettes de soleil",
+                      "Lunettes eclipse",
+                      "Lentilles",
+                      "Aviateur",
+                      "Homme",
+                      "Femme",
+                    ].map((suggestion) => (
                       <button
                         key={suggestion}
                         onClick={() => {

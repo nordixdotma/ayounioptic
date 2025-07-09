@@ -6,6 +6,7 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Minus, Plus, ShoppingBag, Trash2, FileText } from "lucide-react"
 import { useCart } from "@/lib/cart-context"
+import { glassTypeOptions } from "@/lib/mock-products"
 
 export default function CartModal() {
   const { items, totalItems, totalPrice, isCartOpen, closeCart, updateQuantity, removeItem, clearCart } = useCart()
@@ -44,6 +45,7 @@ export default function CartModal() {
         prescriptionFileName: item.prescriptionFileName || null,
         size: item.size || null,
         color: item.color || null,
+        glassType: item.glassType || null,
       })),
       totalPrice: totalPrice,
       totalItems: totalItems,
@@ -84,6 +86,12 @@ export default function CartModal() {
       if (item.prescriptionFileName) {
         message += `   - Ordonnance: ${item.prescriptionFileName}\n`
       }
+      if (item.glassType) {
+        const glassOption = glassTypeOptions.find((option) => option.value === item.glassType)
+        if (glassOption) {
+          message += `   - Type de verre: ${glassOption.shortLabel}\n`
+        }
+      }
       message += `\n`
     })
 
@@ -92,6 +100,12 @@ export default function CartModal() {
 
     const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, "_blank")
+  }
+
+  const getGlassTypeLabel = (glassType?: string) => {
+    if (!glassType) return null
+    const option = glassTypeOptions.find((opt) => opt.value === glassType)
+    return option?.shortLabel || glassType
   }
 
   if (!isCartOpen) return null
@@ -233,8 +247,8 @@ export default function CartModal() {
             <>
               <div className="overflow-y-auto" style={{ maxHeight: "400px" }}>
                 <ul className="divide-y divide-gray-200">
-                  {items.map((item) => (
-                    <li key={`${item.id}`} className="p-4 flex">
+                  {items.map((item, index) => (
+                    <li key={`${item.id}-${index}`} className="p-4 flex">
                       <div className="h-20 w-20 flex-shrink-0 overflow-hidden border border-gray-200">
                         <img
                           src={item.image || "/placeholder.svg"}
@@ -248,6 +262,15 @@ export default function CartModal() {
                           <p className="text-sm font-black text-[#415b58]">{item.price} DH</p>
                           <h3 className="text-sm font-black truncate max-w-[120px]">{item.name}</h3>
                         </div>
+
+                        {/* Glass Type Indicator */}
+                        {item.glassType && (
+                          <div className="mt-1 mb-1">
+                            <div className="flex items-center text-xs text-purple-600 bg-purple-50 px-2 py-1 w-fit">
+                              <span className="truncate max-w-[120px]">{getGlassTypeLabel(item.glassType)}</span>
+                            </div>
+                          </div>
+                        )}
 
                         {/* Prescription File Indicator */}
                         {item.prescriptionFileName && (

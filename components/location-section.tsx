@@ -11,7 +11,7 @@ export default function LocationSection() {
         {/* Google Map */}
         <div className="w-full h-96 md:h-[500px] bg-gray-200 overflow-hidden shadow-lg">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3397.175!2d-7.9898!3d31.6295!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xdafee8d96179e51%3A0x5950b6534f87adb8!2sJemaa%20el-Fnaa%2C%20Marrakech%2040000%2C%20Morocco!5e0!3m2!1sen!2sma!4v1699999999999!5m2!1sen!2sma"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5319.776510728093!2d-7.9914074!3d31.625777!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sPrince%20Jamaa%20el%20Fna%20Qissariyat%20Salam%202eme%20etage%20Marrakech!5e0!3m2!1sen!2sma!4v{{TIMESTAMP}}!5m2!1sen!2sma"
             width="100%"
             height="100%"
             style={{ border: 0 }}
