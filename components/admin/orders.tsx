@@ -1,18 +1,22 @@
 "use client"
 
-import { useState } from "react"
+import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Eye, Phone, Mail, MapPin, Package } from "lucide-react"
-import { useAdmin } from "@/lib/admin-context"
-import type { Order } from "@/lib/admin-context"
 import { useToast } from "@/hooks/use-toast"
+import type { AdminProduct, Order } from "@/lib/admin-context"
+import { useAdmin } from "@/lib/admin-context"
+import {
+  updateCommande as apiUpdateCommande,
+  fetchCommandes,
+} from "@/lib/api/commandes"
+import { Eye, Mail, MapPin, Package, Phone } from "lucide-react"
+import { useEffect, useState } from "react"
 
 export function Orders() {
-  const { state, updateOrderStatus } = useAdmin()
+  const { state, dispatch, updateOrderStatus } = useAdmin()
   const { toast } = useToast()
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [isOrderDialogOpen, setIsOrderDialogOpen] = useState(false)
@@ -48,11 +52,32 @@ export function Orders() {
   }
 
   const handleStatusChange = (orderId: number, newStatus: Order["status"]) => {
-    updateOrderStatus(orderId, newStatus)
-    toast({
-      title: "Succès",
-      description: `Statut de la commande mis à jour vers "${getStatusLabel(newStatus)}".`,
-    })
+    const toBackend = (status: Order["status"]): string => {
+      switch (status) {
+        case "pending":
+          return "En attente"
+        case "processing":
+          return "En cours"
+        case "completed":
+          return "Terminée"
+        case "cancelled":
+          return "Annulée"
+        default:
+          return status
+      }
+    }
+
+    apiUpdateCommande({ id: orderId, status: toBackend(newStatus) })
+      .then(() => {
+        updateOrderStatus(orderId, newStatus)
+        toast({
+          title: "Succès",
+          description: `Statut de la commande mis à jour vers "${getStatusLabel(newStatus)}".`,
+        })
+      })
+      .catch(() => {
+        toast({ title: "Erreur", description: "Échec de la mise à jour du statut.", variant: "destructive" })
+      })
   }
 
   const handleViewOrder = (order: Order) => {
@@ -69,6 +94,79 @@ export function Orders() {
       minute: "2-digit",
     })
   }
+
+  // Charger les commandes depuis l'API
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const commandes = await fetchCommandes()
+
+        const mapStatus = (s: string | undefined): Order["status"] => {
+          switch (s) {
+            case "pending":
+            case "processing":
+            case "completed":
+            case "cancelled":
+              return s
+            case "En attente":
+              return "pending"
+            case "En cours":
+              return "processing"
+            case "Terminée":
+              return "completed"
+            case "Annulée":
+              return "cancelled"
+            default:
+              return "pending"
+          }
+        }
+
+        const mapped = commandes.map((c) => {
+          const findProd = (id:number)=>
+            c.productsDetails?.find((pd)=>pd.id===id) || state.products.find((prod)=>prod.id===id)
+
+          const isAdminProduct = (p: unknown): p is AdminProduct =>
+            p !== null && typeof p === "object" && "categoryId" in p
+
+          const items = c.products.map((p) => {
+            const prod = findProd(p.id)
+            const anyProd = prod as any
+            return {
+              id: p.id,
+              name: anyProd?.name || `Produit ${p.id}`,
+              price: anyProd?.price || 0,
+              oldPrice: anyProd?.oldPrice || 0,
+              image: anyProd?.image || c.image || "",
+              images: anyProd?.images || [],
+              category: isAdminProduct(prod) ? state.categories.find((cat) => cat.id === (prod as any).categoryId)?.name || "" : "",
+              type: isAdminProduct(prod) ? state.types.find((t) => t.id === (prod as any).typeId)?.name || "" : "",
+              inStock: isAdminProduct(prod) ? (prod as any).inStock : true,
+              quantity: p.quantity,
+            }
+          })
+
+          const total = items.reduce((acc, it) => acc + it.price * it.quantity, 0)
+
+          return {
+            id: c.id,
+            customerName: c.clientName,
+            customerEmail: "",
+            customerPhone: c.clientPhone,
+            items,
+            totalPrice: total,
+            status: mapStatus(c.status as unknown as string),
+            createdAt: c.createdAt || new Date().toISOString(),
+            address: "",
+          } as Order
+        })
+        dispatch({ type: "SET_ORDERS", payload: mapped })
+      } catch (error) {
+        toast({ title: "Erreur", description: "Impossible de charger les commandes.", variant: "destructive" })
+      }
+    }
+    load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const sortedOrders = [...state.orders].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),

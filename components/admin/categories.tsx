@@ -1,19 +1,5 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,23 +11,47 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Plus, Edit, Trash2, ImageIcon } from "lucide-react"
-import { useAdmin } from "@/lib/admin-context"
-import type { Category } from "@/lib/admin-context"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { useToast } from "@/hooks/use-toast"
+import type { Category } from "@/lib/admin-context"
+import { useAdmin } from "@/lib/admin-context"
+import {
+  createCategory as apiCreateCategory,
+  deleteCategory as apiDeleteCategory,
+  updateCategory as apiUpdateCategory,
+  fetchCategories,
+} from "@/lib/api/categories"
+import { Edit, ImageIcon, Plus, Trash2 } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 export function Categories() {
-  const { state, addCategory, updateCategory, deleteCategory } = useAdmin()
+  const { state, dispatch } = useAdmin()
   const { toast } = useToast()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
-  const [formData, setFormData] = useState({ name: "", image: "" })
+  const [formData, setFormData] = useState<{
+    name: string
+    imagePreview: string
+    imageFile: File | null
+  }>({ name: "", imagePreview: "", imageFile: null })
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const editFileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleImageUpload = async (file: File, isEdit = false) => {
+  const handleImageUpload = async (file: File) => {
     if (!file) return
 
     if (!file.type.startsWith("image/")) {
@@ -69,7 +79,7 @@ export function Categories() {
       const reader = new FileReader()
       reader.onload = (e) => {
         const base64 = e.target?.result as string
-        setFormData({ ...formData, image: base64 })
+        setFormData({ ...formData, imagePreview: base64, imageFile: file })
         setIsUploading(false)
         toast({
           title: "Succès",
@@ -88,12 +98,12 @@ export function Categories() {
   }
 
   const resetForm = () => {
-    setFormData({ name: "", image: "" })
+    setFormData({ name: "", imagePreview: "", imageFile: null })
     if (fileInputRef.current) fileInputRef.current.value = ""
     if (editFileInputRef.current) editFileInputRef.current.value = ""
   }
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!formData.name.trim()) {
       toast({
         title: "Erreur",
@@ -103,7 +113,7 @@ export function Categories() {
       return
     }
 
-    if (!formData.image) {
+    if (!formData.imageFile) {
       toast({
         title: "Erreur",
         description: "Une image est requise.",
@@ -112,22 +122,37 @@ export function Categories() {
       return
     }
 
-    addCategory({ name: formData.name.trim(), image: formData.image })
-    resetForm()
-    setIsAddDialogOpen(false)
-    toast({
-      title: "Succès",
-      description: "Catégorie ajoutée avec succès.",
-    })
+    try {
+      setIsUploading(true)
+      const newCategory = await apiCreateCategory({
+        name: formData.name.trim(),
+        image: formData.imageFile,
+      })
+      dispatch({ type: "ADD_CATEGORY", payload: newCategory })
+      resetForm()
+      setIsAddDialogOpen(false)
+      toast({
+        title: "Succès",
+        description: "Catégorie ajoutée avec succès.",
+      })
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Échec de l'ajout de la catégorie.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   const handleEdit = (category: Category) => {
     setEditingCategory(category)
-    setFormData({ name: category.name, image: category.image })
+    setFormData({ name: category.name, imagePreview: category.image, imageFile: null })
     setIsEditDialogOpen(true)
   }
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (!editingCategory) return
 
     if (!formData.name.trim()) {
@@ -139,33 +164,67 @@ export function Categories() {
       return
     }
 
-    if (!formData.image) {
+    try {
+      setIsUploading(true)
+      const updated = await apiUpdateCategory({
+        id: editingCategory.id,
+        name: formData.name.trim(),
+        image: formData.imageFile || undefined,
+      })
+      dispatch({ type: "UPDATE_CATEGORY", payload: updated })
+      resetForm()
+      setEditingCategory(null)
+      setIsEditDialogOpen(false)
+      toast({
+        title: "Succès",
+        description: "Catégorie mise à jour avec succès.",
+      })
+    } catch (error) {
       toast({
         title: "Erreur",
-        description: "Une image est requise.",
+        description: "Échec de la mise à jour de la catégorie.",
         variant: "destructive",
       })
-      return
+    } finally {
+      setIsUploading(false)
     }
-
-    updateCategory({ ...editingCategory, name: formData.name.trim(), image: formData.image })
-    resetForm()
-    setEditingCategory(null)
-    setIsEditDialogOpen(false)
-    toast({
-      title: "Succès",
-      description: "Catégorie mise à jour avec succès.",
-    })
   }
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     const productsCount = state.products.filter((p) => p.categoryId === id).length
-    deleteCategory(id)
-    toast({
-      title: "Succès",
-      description: `Catégorie supprimée${productsCount > 0 ? ` avec ${productsCount} produit(s)` : ""}.`,
-    })
+    try {
+      await apiDeleteCategory(id)
+      dispatch({ type: "DELETE_CATEGORY", payload: id })
+      toast({
+        title: "Succès",
+        description: `Catégorie supprimée${productsCount > 0 ? ` avec ${productsCount} produit(s)` : ""}.`,
+      })
+    } catch (error) {
+      toast({
+        title: "Erreur",
+        description: "Échec de la suppression de la catégorie.",
+        variant: "destructive",
+      })
+    }
   }
+
+  // Charger les catégories depuis l'API au montage
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const cats = await fetchCategories()
+        dispatch({ type: "SET_CATEGORIES", payload: cats })
+      } catch (error) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les catégories depuis le serveur.",
+          variant: "destructive",
+        })
+      }
+    }
+    loadCategories()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="p-6">
@@ -209,10 +268,10 @@ export function Categories() {
                     }}
                     disabled={isUploading}
                   />
-                  {formData.image && (
+                  {formData.imagePreview && (
                     <div className="relative w-32 h-32 bg-slate-100 rounded-lg overflow-hidden">
                       <img
-                        src={formData.image || "/placeholder.svg"}
+                        src={formData.imagePreview || "/placeholder.svg"}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
@@ -326,14 +385,14 @@ export function Categories() {
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files?.[0]
-                    if (file) handleImageUpload(file, true)
+                    if (file) handleImageUpload(file)
                   }}
                   disabled={isUploading}
                 />
-                {formData.image && (
+                {formData.imagePreview && (
                   <div className="relative w-32 h-32 bg-slate-100 rounded-lg overflow-hidden">
                     <img
-                      src={formData.image || "/placeholder.svg"}
+                      src={formData.imagePreview || "/placeholder.svg"}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />

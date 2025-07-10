@@ -1,19 +1,31 @@
 "use client"
 
-import { motion, AnimatePresence } from "framer-motion"
+import type { Category } from "@/lib/api/categories"
+import { fetchSousCategories, type SousCategory } from "@/lib/api/sousCategories"
+import { AnimatePresence, motion } from "framer-motion"
 import { X } from "lucide-react"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
 interface CategoryModalProps {
   isOpen: boolean
   onClose: () => void
-  category: "homme" | "femme" | "lenses" | null
+  category: Category | null
 }
 
 export default function CategoryModal({ isOpen, onClose, category }: CategoryModalProps) {
   if (!category) return null
 
-  const categoryTitle = category === "homme" ? "Homme" : category === "femme" ? "Femme" : "Lentilles"
+  const key = category.name.toLowerCase()
+  const categoryTitle = category.name
+
+  const [subs, setSubs] = useState<SousCategory[]>([])
+
+  useEffect(() => {
+    fetchSousCategories()
+      .then((list) => setSubs(list.filter((s) => s.categoryId === category.id)))
+      .catch(console.error)
+  }, [category])
 
   const overlayVariants = {
     hidden: { opacity: 0 },
@@ -38,53 +50,32 @@ export default function CategoryModal({ isOpen, onClose, category }: CategoryMod
   }
 
   const renderOptions = () => {
-    if (category === "lenses") {
-      return (
-        <>
-          {/* Transparent Lenses */}
-          <Link href={`/${category}/transparent`} className="group" onClick={onClose}>
-            <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-              <div className="aspect-square overflow-hidden">
-                <img
-                  src="https://images.unsplash.com/photo-1582142306909-195724d33c9f?w=300&h=300&fit=crop&crop=center"
-                  alt="Lentilles Transparentes"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <div className="p-2 sm:p-4 text-center">
-                <h3 className="text-sm sm:text-lg font-black text-[#415b58] mb-1">Transparentes</h3>
-                <p className="text-gray-600 font-normal text-xs sm:text-sm">Vision naturelle</p>
-              </div>
+    if (subs.length > 0) {
+      return subs.map((sc) => (
+        <Link key={sc.id} href={`/${key}/${sc.name.toLowerCase()}`} className="group" onClick={onClose}>
+          <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden rounded-xl">
+            <div className="aspect-square overflow-hidden rounded-xl">
+              <img
+                src={sc.image}
+                alt={sc.name}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
             </div>
-          </Link>
-
-          {/* Colored Lenses */}
-          <Link href={`/${category}/colored`} className="group" onClick={onClose}>
-            <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-              <div className="aspect-square overflow-hidden">
-                <img
-                  src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=300&h=300&fit=crop&crop=center"
-                  alt="Lentilles Colorées"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-              </div>
-              <div className="p-2 sm:p-4 text-center">
-                <h3 className="text-sm sm:text-lg font-black text-[#415b58] mb-1">Colorées</h3>
-                <p className="text-gray-600 font-normal text-xs sm:text-sm">Style et couleur</p>
-              </div>
+            <div className="p-2 sm:p-4 text-center">
+              <h3 className="text-sm sm:text-lg font-black text-[#415b58] mb-1">{sc.name}</h3>
             </div>
-          </Link>
-        </>
-      )
+          </div>
+        </Link>
+      ))
     }
 
     // Default options for homme/femme
     return (
       <>
         {/* Lunettes de Vue */}
-        <Link href={`/${category}/vue`} className="group" onClick={onClose}>
-          <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-            <div className="aspect-square overflow-hidden">
+        <Link href={`/${key}/vue`} className="group" onClick={onClose}>
+          <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden rounded-xl">
+            <div className="aspect-square overflow-hidden rounded-xl">
               <img
                 src="https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=300&h=300&fit=crop&crop=center"
                 alt="Lunettes de Vue"
@@ -99,9 +90,9 @@ export default function CategoryModal({ isOpen, onClose, category }: CategoryMod
         </Link>
 
         {/* Lunettes de Soleil */}
-        <Link href={`/${category}/soleil`} className="group" onClick={onClose}>
-          <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
-            <div className="aspect-square overflow-hidden">
+        <Link href={`/${key}/soleil`} className="group" onClick={onClose}>
+          <div className="bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden rounded-xl">
+            <div className="aspect-square overflow-hidden rounded-xl">
               <img
                 src="https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=300&h=300&fit=crop&crop=center"
                 alt="Lunettes de Soleil"

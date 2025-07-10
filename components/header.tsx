@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import Link from "next/link"
-import { Menu, X, ShoppingBag, Search } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { motion, AnimatePresence } from "framer-motion"
-import CategoryModal from "./category-modal"
+import type { Category } from "@/lib/api/categories"
 import { useCart } from "@/lib/cart-context"
+import { cn } from "@/lib/utils"
+import { AnimatePresence, motion } from "framer-motion"
+import { Menu, Search, ShoppingBag, X } from "lucide-react"
+import Link from "next/link"
+import { useEffect, useRef, useState } from "react"
+import CategoryModal from "./category-modal"
 import SearchOverlay from "./search-overlay"
 
 interface HeaderProps {
@@ -20,7 +21,7 @@ export default function Header({ forceWhite = false }: HeaderProps) {
   const [showBanner, setShowBanner] = useState(true)
   const headerRef = useRef<HTMLElement>(null)
   const [categoryModalOpen, setCategoryModalOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<"homme" | "femme" | "lenses" | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
   const { totalItems, openCart } = useCart()
   const [isSearchOpen, setIsSearchOpen] = useState(false)
 
@@ -126,8 +127,16 @@ export default function Header({ forceWhite = false }: HeaderProps) {
     { name: "Contact", href: "/contact" },
   ]
 
-  const handleCategoryClick = (category: "homme" | "femme" | "lenses") => {
-    setSelectedCategory(category)
+  const handleCategoryClick = (categorySlug: "homme" | "femme" | "lenses") => {
+    // Create a lightweight placeholder object so that CategoryModal receives the props it expects.
+    // We only need id, name and image for the modal to work.
+    const placeholder: Category = {
+      id: -1,
+      name: categorySlug.charAt(0).toUpperCase() + categorySlug.slice(1),
+      image: `/placeholder-${categorySlug}.svg`,
+    }
+
+    setSelectedCategory(placeholder)
     setCategoryModalOpen(true)
   }
 
@@ -444,7 +453,8 @@ export default function Header({ forceWhite = false }: HeaderProps) {
       </header>
 
       {/* Category Modal - Outside header */}
-      <CategoryModal isOpen={categoryModalOpen} onClose={closeCategoryModal} category={selectedCategory} />
+      {/* cast because Header still uses string categories; CategoryModal expects a Category object when opened from the home grid */}
+      <CategoryModal isOpen={categoryModalOpen} onClose={closeCategoryModal} category={selectedCategory as any} />
 
       {/* Search Overlay */}
       <SearchOverlay isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />

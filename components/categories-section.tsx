@@ -1,14 +1,19 @@
 "use client"
 
-import { useState } from "react"
+import { fetchCategories, type Category } from "@/lib/api/categories"
+import { useEffect, useState } from "react"
 import CategoryModal from "./category-modal"
-import Link from "next/link"
 
 export default function CategoriesSection() {
+  const [categories, setCategories] = useState<Category[]>([])
   const [modalOpen, setModalOpen] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState<"homme" | "femme" | "lenses" | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
 
-  const handleCategoryClick = (category: "homme" | "femme" | "lenses") => {
+  useEffect(() => {
+    fetchCategories().then(setCategories).catch(console.error)
+  }, [])
+
+  const handleCategoryClick = (category: Category) => {
     setSelectedCategory(category)
     setModalOpen(true)
   }
@@ -28,78 +33,33 @@ export default function CategoriesSection() {
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-8">
-            {/* Homme Card */}
-            <button onClick={() => handleCategoryClick("homme")} className="group w-full text-left">
-              <div className="relative overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="aspect-[3/2] md:aspect-[4/3] overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1556306535-38febf6782e7?w=500&h=350&fit=crop&crop=center"
-                    alt="Lunettes pour Homme"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+            {categories.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => handleCategoryClick(cat)}
+                className="group w-full text-left"
+              >
+                <div className="relative overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-xl">
+                  <div className="aspect-[3/2] md:aspect-[4/3] overflow-hidden rounded-xl">
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <div className="p-3 md:p-6">
+                    <h3 className="text-lg md:text-2xl font-black text-[#415b58] mb-1 md:mb-2">{cat.name}</h3>
+                    <p className="text-gray-600 font-normal text-xs md:text-base">&nbsp;</p>
+                  </div>
                 </div>
-                <div className="p-3 md:p-6">
-                  <h3 className="text-lg md:text-2xl font-black text-[#415b58] mb-1 md:mb-2">Homme</h3>
-                  <p className="text-gray-600 font-normal text-xs md:text-base">Style et performance</p>
-                </div>
-              </div>
-            </button>
+              </button>
+            ))}
 
-            {/* Femme Card */}
-            <button onClick={() => handleCategoryClick("femme")} className="group w-full text-left">
-              <div className="relative overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="aspect-[3/2] md:aspect-[4/3] overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=500&h=350&fit=crop&crop=center"
-                    alt="Lunettes pour Femme"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="p-3 md:p-6">
-                  <h3 className="text-lg md:text-2xl font-black text-[#415b58] mb-1 md:mb-2">Femme</h3>
-                  <p className="text-gray-600 font-normal text-xs md:text-base">Élégance et modernité</p>
-                </div>
-              </div>
-            </button>
-
-            {/* Eclipse Card - Direct link */}
-            <Link href="/eclipse/eclipse" className="group w-full text-left">
-              <div className="relative overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="aspect-[3/2] md:aspect-[4/3] overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1509695507497-903c140c43b0?w=500&h=350&fit=crop&crop=center"
-                    alt="Lunettes Eclipse"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="p-3 md:p-6">
-                  <h3 className="text-lg md:text-2xl font-black text-[#415b58] mb-1 md:mb-2">Eclipse</h3>
-                  <p className="text-gray-600 font-normal text-xs md:text-base">Protection spécialisée</p>
-                </div>
-              </div>
-            </Link>
-
-            {/* Lenses Card */}
-            <button onClick={() => handleCategoryClick("lenses")} className="group w-full text-left">
-              <div className="relative overflow-hidden bg-white shadow-lg hover:shadow-xl transition-shadow duration-300">
-                <div className="aspect-[3/2] md:aspect-[4/3] overflow-hidden">
-                  <img
-                    src="https://plus.unsplash.com/premium_photo-1663048816150-1638f707cea2?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                    alt="Lentilles de Contact"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="p-3 md:p-6">
-                  <h3 className="text-lg md:text-2xl font-black text-[#415b58] mb-1 md:mb-2">Lentilles</h3>
-                  <p className="text-gray-600 font-normal text-xs md:text-base">Confort et liberté</p>
-                </div>
-              </div>
-            </button>
+            {/* autres cartes statiques si nécessaire */}
           </div>
         </div>
       </section>
 
-      {/* Category Modal */}
       <CategoryModal isOpen={modalOpen} onClose={closeModal} category={selectedCategory} />
     </>
   )

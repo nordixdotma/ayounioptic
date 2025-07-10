@@ -1,22 +1,5 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Switch } from "@/components/ui/switch"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,13 +12,36 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Trash2, ImageIcon, X } from "lucide-react"
-import { useAdmin } from "@/lib/admin-context"
-import type { AdminProduct } from "@/lib/admin-context"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
+import type { AdminProduct } from "@/lib/admin-context"
+import { useAdmin } from "@/lib/admin-context"
+import {
+  createProduct as apiCreateProduct,
+  deleteProduct as apiDeleteProduct,
+  updateProduct as apiUpdateProduct,
+  fetchProducts,
+} from "@/lib/api/products"
+import { Edit, ImageIcon, Plus, Trash2, X } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 export function Products() {
-  const { state, addProduct, updateProduct, deleteProduct } = useAdmin()
+  const { state, dispatch } = useAdmin()
   const { toast } = useToast()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -56,6 +62,13 @@ export function Products() {
   const additionalImagesInputRef = useRef<HTMLInputElement>(null)
   const editFileInputRef = useRef<HTMLInputElement>(null)
   const editAdditionalImagesInputRef = useRef<HTMLInputElement>(null)
+
+  // helper pour convertir un dataURL base64 en File
+  const dataURLtoFile = async (dataUrl: string, filename: string): Promise<File> => {
+    const res = await fetch(dataUrl)
+    const blob = await res.blob()
+    return new File([blob], filename, { type: blob.type })
+  }
 
   const handleImageUpload = async (file: File, isMainImage = true) => {
     if (!file) return
@@ -230,27 +243,47 @@ export function Products() {
     return true
   }
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!validateForm()) return
 
-    const allImages = [formData.image, ...formData.images]
-    addProduct({
-      name: formData.name.trim(),
-      price: Number.parseFloat(formData.price),
-      oldPrice: Number.parseFloat(formData.oldPrice) || Number.parseFloat(formData.price),
-      image: formData.image,
-      images: allImages,
-      categoryId: Number.parseInt(formData.categoryId),
-      typeId: Number.parseInt(formData.typeId),
-      inStock: formData.inStock,
-      description: formData.description.trim(),
-    })
-    resetForm()
-    setIsAddDialogOpen(false)
-    toast({
-      title: "Succès",
-      description: "Produit ajouté avec succès.",
-    })
+    try {
+      setIsUploading(true)
+      // convertir images en File[]
+      const files: File[] = []
+      const mainFile = await dataURLtoFile(formData.image, "main.jpg")
+      files.push(mainFile)
+      for (let i = 0; i < formData.images.length; i++) {
+        files.push(await dataURLtoFile(formData.images[i], `extra-${i}.jpg`))
+      }
+      const newProd = await apiCreateProduct({
+        name: formData.name.trim(),
+        price: Number.parseFloat(formData.price),
+        description: formData.description.trim(),
+        sousCategoryId: Number.parseInt(formData.typeId),
+        images: files,
+      })
+      const typeObj = state.types.find((t) => t.id === newProd.sousCategoryId)
+      const adminProd = {
+        id: newProd.id,
+        name: newProd.name,
+        price: newProd.price,
+        oldPrice: Number.parseFloat(formData.oldPrice) || newProd.price,
+        image: newProd.images[0] || "",
+        images: newProd.images,
+        categoryId: typeObj?.categoryId || 0,
+        typeId: newProd.sousCategoryId,
+        inStock: formData.inStock,
+        description: newProd.description,
+      }
+      dispatch({ type: "ADD_PRODUCT", payload: adminProd })
+      resetForm()
+      setIsAddDialogOpen(false)
+      toast({ title: "Succès", description: "Produit ajouté avec succès." })
+    } catch (error) {
+      toast({ title: "Erreur", description: "Échec de l'ajout du produit.", variant: "destructive" })
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   const handleEdit = (product: AdminProduct) => {
@@ -270,37 +303,57 @@ export function Products() {
     setIsEditDialogOpen(true)
   }
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (!editingProduct || !validateForm()) return
 
-    const allImages = [formData.image, ...formData.images]
-    updateProduct({
-      ...editingProduct,
-      name: formData.name.trim(),
-      price: Number.parseFloat(formData.price),
-      oldPrice: Number.parseFloat(formData.oldPrice) || Number.parseFloat(formData.price),
-      image: formData.image,
-      images: allImages,
-      categoryId: Number.parseInt(formData.categoryId),
-      typeId: Number.parseInt(formData.typeId),
-      inStock: formData.inStock,
-      description: formData.description.trim(),
-    })
-    resetForm()
-    setEditingProduct(null)
-    setIsEditDialogOpen(false)
-    toast({
-      title: "Succès",
-      description: "Produit mis à jour avec succès.",
-    })
+    try {
+      if (!editingProduct) return
+      setIsUploading(true)
+      const files: File[] = []
+      const mainFile = await dataURLtoFile(formData.image, "main.jpg")
+      files.push(mainFile)
+      for (let i = 0; i < formData.images.length; i++) {
+        files.push(await dataURLtoFile(formData.images[i], `extra-${i}.jpg`))
+      }
+      const updated = await apiUpdateProduct({
+        id: editingProduct.id,
+        name: formData.name.trim(),
+        price: Number.parseFloat(formData.price),
+        description: formData.description.trim(),
+        sousCategoryId: Number.parseInt(formData.typeId),
+        images: files,
+      })
+      const typeObj2 = state.types.find((t) => t.id === updated.sousCategoryId)
+      const adminProd = {
+        ...editingProduct,
+        name: updated.name,
+        price: updated.price,
+        image: updated.images[0] || "",
+        images: updated.images,
+        typeId: updated.sousCategoryId,
+        categoryId: typeObj2?.categoryId || 0,
+        description: updated.description,
+      }
+      dispatch({ type: "UPDATE_PRODUCT", payload: adminProd })
+      resetForm()
+      setEditingProduct(null)
+      setIsEditDialogOpen(false)
+      toast({ title: "Succès", description: "Produit mis à jour avec succès." })
+    } catch (error) {
+      toast({ title: "Erreur", description: "Échec de la mise à jour du produit.", variant: "destructive" })
+    } finally {
+      setIsUploading(false)
+    }
   }
 
-  const handleDelete = (id: number) => {
-    deleteProduct(id)
-    toast({
-      title: "Succès",
-      description: "Produit supprimé avec succès.",
-    })
+  const handleDelete = async (id: number) => {
+    try {
+      await apiDeleteProduct(id)
+      dispatch({ type: "DELETE_PRODUCT", payload: id })
+      toast({ title: "Succès", description: "Produit supprimé avec succès." })
+    } catch (error) {
+      toast({ title: "Erreur", description: "Échec de la suppression du produit.", variant: "destructive" })
+    }
   }
 
   const getCategoryName = (categoryId: number) => {
@@ -310,6 +363,32 @@ export function Products() {
   const getTypeName = (typeId: number) => {
     return state.types.find((t) => t.id === typeId)?.name || "Inconnu"
   }
+
+  // Charger les produits depuis l'API au montage
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const prods = await fetchProducts()
+        const mapped = prods.map((p) => ({
+          id: p.id,
+          name: p.name,
+          price: p.price,
+          oldPrice: p.price,
+          image: p.images[0] || "",
+          images: p.images,
+          categoryId: state.types.find((t) => t.id === p.sousCategoryId)?.categoryId || 0,
+          typeId: p.sousCategoryId,
+          inStock: true,
+          description: p.description,
+        }))
+        dispatch({ type: "SET_PRODUCTS", payload: mapped })
+      } catch (error) {
+        toast({ title: "Erreur", description: "Impossible de charger les produits.", variant: "destructive" })
+      }
+    }
+    load()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="p-6">

@@ -1,10 +1,12 @@
-import { notFound } from "next/navigation"
-import Header from "@/components/header"
+import CartModal from "@/components/cart-modal"
 import Footer from "@/components/footer"
-import WhatsAppButton from "@/components/whatsapp-button"
+import Header from "@/components/header"
 import PageHero from "@/components/page-hero"
 import ProductsSection from "@/components/products-section"
-import CartModal from "@/components/cart-modal"
+import WhatsAppButton from "@/components/whatsapp-button"
+import { fetchCategories } from "@/lib/api/categories"
+import { fetchSousCategories } from "@/lib/api/sousCategories"
+import { notFound } from "next/navigation"
 
 interface CategoryPageProps {
   params: {
@@ -13,83 +15,37 @@ interface CategoryPageProps {
   }
 }
 
-export default function CategoryPage({ params }: CategoryPageProps) {
-  const { category, type } = params
+export default async function CategoryPage({ params }: CategoryPageProps) {
+  const { category: categorySlug, type: sousSlug } = params
 
-  // Validate category and type
-  const validCategories = ["homme", "femme", "eclipse", "lenses"]
-  const validTypes = {
-    homme: ["vue", "soleil"],
-    femme: ["vue", "soleil"],
-    eclipse: ["eclipse"],
-    lenses: ["transparent", "colored"],
-  }
+  // Fetch data from backend
+  const [categories, sousCategories] = await Promise.all([fetchCategories(), fetchSousCategories()])
 
-  if (!validCategories.includes(category) || !validTypes[category as keyof typeof validTypes]?.includes(type)) {
-    notFound()
-  }
+  // Find matching category and sous-category (case-insensitive)
+  const category = categories.find((c) => c.name.toLowerCase() === decodeURIComponent(categorySlug).toLowerCase())
+  if (!category) notFound()
 
-  // Generate titles based on category and type
-  const getCategoryTitle = (cat: string) => {
-    switch (cat) {
-      case "homme":
-        return "Homme"
-      case "femme":
-        return "Femme"
-      case "eclipse":
-        return "Eclipse"
-      case "lenses":
-        return "Lentilles"
-      default:
-        return ""
-    }
-  }
+  const sousCategory = sousCategories.find(
+    (s) =>
+      s.categoryId === category.id &&
+      s.name.toLowerCase() === decodeURIComponent(sousSlug).toLowerCase(),
+  )
 
-  const getTypeTitle = (cat: string, typ: string) => {
-    if (cat === "eclipse") return "Lunettes Eclipse"
-    if (cat === "lenses") {
-      return typ === "transparent" ? "Lentilles Transparentes" : "Lentilles Colorées"
-    }
-    return typ === "vue" ? "Lunettes de Vue" : "Lunettes de Soleil"
-  }
+  if (!sousCategory) notFound()
 
-  const getSubtitle = (cat: string, typ: string) => {
-    if (cat === "eclipse") return "Protection spécialisée pour l'observation solaire"
-    if (cat === "lenses") {
-      return typ === "transparent"
-        ? "Lentilles de contact pour une vision naturelle"
-        : "Lentilles colorées pour changer votre look"
-    }
-    return `Découvrez notre collection de ${getTypeTitle(cat, typ).toLowerCase()} pour ${cat}`
-  }
+  // Derive some simple titles – can be improved later with dedicated fields
+  const pageTitle = `${sousCategory.name} ${category.name}`
+  const subtitle = `Découvrez notre collection ${sousCategory.name.toLowerCase()} de la catégorie ${category.name}`
 
-  const getBackgroundImage = (cat: string, typ: string) => {
-    if (cat === "eclipse") {
-      return "https://images.unsplash.com/photo-1509695507497-903c140c43b0?w=1200&h=600&fit=crop&crop=center"
-    }
-    if (cat === "lenses") {
-      return typ === "transparent"
-        ? "https://images.unsplash.com/photo-1582142306909-195724d33c9f?w=1200&h=600&fit=crop&crop=center"
-        : "https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=1200&h=600&fit=crop&crop=center"
-    }
-    return typ === "vue"
-      ? "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=1200&h=600&fit=crop&crop=center"
-      : "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=1200&h=600&fit=crop&crop=center"
-  }
-
-  const categoryTitle = getCategoryTitle(category)
-  const typeTitle = getTypeTitle(category, type)
-  const pageTitle = category === "eclipse" ? typeTitle : `${typeTitle} ${categoryTitle}`
+  // Placeholder background image – we could use category.image but ensure good resolution
+  const backgroundImage = category.image || "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=1200&h=600&fit=crop&crop=center"
 
   return (
     <main className="min-h-screen bg-white">
       <Header />
-      <PageHero
-        title={pageTitle}
-        subtitle={getSubtitle(category, type)}
-        backgroundImage={getBackgroundImage(category, type)}
-      />
-      <ProductsSection category={category} type={type} />
+      <PageHero title={pageTitle} subtitle={subtitle} backgroundImage={backgroundImage} />
+      {/* Pass slug values, ProductsSection will fetch products based on them */}
+      <ProductsSection category={categorySlug} type={sousSlug} />
       <Footer />
       <WhatsAppButton />
       <CartModal />

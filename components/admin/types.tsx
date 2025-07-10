@@ -1,19 +1,5 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,23 +11,55 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-import { Plus, Edit, Trash2, ImageIcon } from "lucide-react"
-import { useAdmin } from "@/lib/admin-context"
-import type { Type } from "@/lib/admin-context"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast"
+import type { Type } from "@/lib/admin-context"
+import { useAdmin } from "@/lib/admin-context"
+import {
+  createSousCategory as apiCreateSousCategory,
+  deleteSousCategory as apiDeleteSousCategory,
+  updateSousCategory as apiUpdateSousCategory,
+  fetchSousCategories,
+} from "@/lib/api/sousCategories"
+import { Edit, ImageIcon, Plus, Trash2 } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
 
 export function Types() {
-  const { state, addType, updateType, deleteType } = useAdmin()
+  const { state, dispatch } = useAdmin()
   const { toast } = useToast()
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [editingType, setEditingType] = useState<Type | null>(null)
-  const [formData, setFormData] = useState({ name: "", image: "" })
+  const [formData, setFormData] = useState<{
+    name: string
+    imagePreview: string
+    imageFile: File | null
+    categoryId: number | ""
+  }>({ name: "", imagePreview: "", imageFile: null, categoryId: "" })
   const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const editFileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleImageUpload = async (file: File, isEdit = false) => {
+  const handleImageUpload = async (file: File) => {
     if (!file) return
 
     if (!file.type.startsWith("image/")) {
@@ -69,7 +87,7 @@ export function Types() {
       const reader = new FileReader()
       reader.onload = (e) => {
         const base64 = e.target?.result as string
-        setFormData({ ...formData, image: base64 })
+        setFormData({ ...formData, imagePreview: base64, imageFile: file })
         setIsUploading(false)
         toast({
           title: "Succès",
@@ -88,12 +106,12 @@ export function Types() {
   }
 
   const resetForm = () => {
-    setFormData({ name: "", image: "" })
+    setFormData({ name: "", imagePreview: "", imageFile: null, categoryId: "" })
     if (fileInputRef.current) fileInputRef.current.value = ""
     if (editFileInputRef.current) editFileInputRef.current.value = ""
   }
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!formData.name.trim()) {
       toast({
         title: "Erreur",
@@ -103,7 +121,7 @@ export function Types() {
       return
     }
 
-    if (!formData.image) {
+    if (!formData.imageFile) {
       toast({
         title: "Erreur",
         description: "Une image est requise.",
@@ -112,22 +130,41 @@ export function Types() {
       return
     }
 
-    addType({ name: formData.name.trim(), image: formData.image })
-    resetForm()
-    setIsAddDialogOpen(false)
-    toast({
-      title: "Succès",
-      description: "Type ajouté avec succès.",
-    })
+    if (formData.categoryId === "") {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner une catégorie.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      setIsUploading(true)
+      const categoryId = formData.categoryId as number
+      const newSousCat = await apiCreateSousCategory({
+        name: formData.name.trim(),
+        image: formData.imageFile,
+        categoryId,
+      })
+      dispatch({ type: "ADD_TYPE", payload: { id: newSousCat.id, name: newSousCat.name, image: newSousCat.image, categoryId } })
+      resetForm()
+      setIsAddDialogOpen(false)
+      toast({ title: "Succès", description: "Type ajouté avec succès." })
+    } catch (error) {
+      toast({ title: "Erreur", description: "Échec de l'ajout du type.", variant: "destructive" })
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   const handleEdit = (type: Type) => {
     setEditingType(type)
-    setFormData({ name: type.name, image: type.image })
+    setFormData({ name: type.name, imagePreview: type.image, imageFile: null, categoryId: type.categoryId })
     setIsEditDialogOpen(true)
   }
 
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
     if (!editingType) return
 
     if (!formData.name.trim()) {
@@ -139,7 +176,7 @@ export function Types() {
       return
     }
 
-    if (!formData.image) {
+    if (!formData.imageFile) {
       toast({
         title: "Erreur",
         description: "Une image est requise.",
@@ -148,24 +185,63 @@ export function Types() {
       return
     }
 
-    updateType({ ...editingType, name: formData.name.trim(), image: formData.image })
-    resetForm()
-    setEditingType(null)
-    setIsEditDialogOpen(false)
-    toast({
-      title: "Succès",
-      description: "Type mis à jour avec succès.",
-    })
+    if (formData.categoryId === "") {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner une catégorie.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      setIsUploading(true)
+      const updatedSousCat = await apiUpdateSousCategory({
+        id: editingType.id,
+        name: formData.name.trim(),
+        image: formData.imageFile || undefined,
+        categoryId: formData.categoryId as number,
+      })
+      dispatch({ type: "UPDATE_TYPE", payload: { id: updatedSousCat.id, name: updatedSousCat.name, image: updatedSousCat.image, categoryId: formData.categoryId as number } })
+      resetForm()
+      setEditingType(null)
+      setIsEditDialogOpen(false)
+      toast({ title: "Succès", description: "Type mis à jour avec succès." })
+    } catch (error) {
+      toast({ title: "Erreur", description: "Échec de la mise à jour du type.", variant: "destructive" })
+    } finally {
+      setIsUploading(false)
+    }
   }
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     const productsCount = state.products.filter((p) => p.typeId === id).length
-    deleteType(id)
-    toast({
-      title: "Succès",
-      description: `Type supprimé${productsCount > 0 ? ` avec ${productsCount} produit(s)` : ""}.`,
-    })
+    try {
+      await apiDeleteSousCategory(id)
+      dispatch({ type: "DELETE_TYPE", payload: id })
+      toast({
+        title: "Succès",
+        description: `Type supprimé${productsCount > 0 ? ` avec ${productsCount} produit(s)` : ""}.`,
+      })
+    } catch (error) {
+      toast({ title: "Erreur", description: "Échec de la suppression du type.", variant: "destructive" })
+    }
   }
+
+  // Charger les types depuis l'API (sousCategories)
+  useEffect(() => {
+    const loadSousCats = async () => {
+      try {
+        const sousCats = await fetchSousCategories()
+        const mapped = sousCats.map((s) => ({ id: s.id, name: s.name, image: s.image, categoryId: s.categoryId }))
+        dispatch({ type: "SET_TYPES", payload: mapped })
+      } catch (error) {
+        toast({ title: "Erreur", description: "Impossible de charger les types.", variant: "destructive" })
+      }
+    }
+    loadSousCats()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="p-6">
@@ -197,6 +273,26 @@ export function Types() {
                 />
               </div>
               <div>
+                <Label htmlFor="category">Catégorie</Label>
+                <Select
+                  value={String(formData.categoryId)}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, categoryId: value === "" ? "" : Number(value) })
+                  }
+                >
+                  <SelectTrigger id="category">
+                    <SelectValue placeholder="Sélectionner une catégorie" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {state.categories.map((cat) => (
+                      <SelectItem key={cat.id} value={String(cat.id)}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label htmlFor="image">Image du type</Label>
                 <div className="space-y-2">
                   <Input
@@ -209,10 +305,10 @@ export function Types() {
                     }}
                     disabled={isUploading}
                   />
-                  {formData.image && (
+                  {formData.imagePreview && (
                     <div className="relative w-32 h-32 bg-slate-100 rounded-lg overflow-hidden">
                       <img
-                        src={formData.image || "/placeholder.svg"}
+                        src={formData.imagePreview || "/placeholder.svg"}
                         alt="Preview"
                         className="w-full h-full object-cover"
                       />
@@ -309,6 +405,26 @@ export function Types() {
               />
             </div>
             <div>
+              <Label htmlFor="edit-category">Catégorie</Label>
+              <Select
+                value={String(formData.categoryId)}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, categoryId: value === "" ? "" : Number(value) })
+                }
+              >
+                <SelectTrigger id="edit-category">
+                  <SelectValue placeholder="Sélectionner une catégorie" />
+                </SelectTrigger>
+                <SelectContent>
+                  {state.categories.map((cat) => (
+                    <SelectItem key={cat.id} value={String(cat.id)}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
               <Label htmlFor="edit-image">Image du type</Label>
               <div className="space-y-2">
                 <Input
@@ -317,14 +433,14 @@ export function Types() {
                   accept="image/*"
                   onChange={(e) => {
                     const file = e.target.files?.[0]
-                    if (file) handleImageUpload(file, true)
+                    if (file) handleImageUpload(file)
                   }}
                   disabled={isUploading}
                 />
-                {formData.image && (
+                {formData.imagePreview && (
                   <div className="relative w-32 h-32 bg-slate-100 rounded-lg overflow-hidden">
                     <img
-                      src={formData.image || "/placeholder.svg"}
+                      src={formData.imagePreview || "/placeholder.svg"}
                       alt="Preview"
                       className="w-full h-full object-cover"
                     />

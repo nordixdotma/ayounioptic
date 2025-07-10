@@ -1,12 +1,14 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { useInView } from "react-intersection-observer"
+import { fetchProducts, type Product as ApiProduct } from "@/lib/api/products"
+import { fetchSousCategories } from "@/lib/api/sousCategories"
+import { mockProducts, type Product as FrontProduct } from "@/lib/mock-products"
 import { motion } from "framer-motion"
-import ProductGrid from "./product-grid"
-import ProductFilter from "./product-filter"
+import { useEffect, useMemo, useState } from "react"
+import { useInView } from "react-intersection-observer"
 import EmptyProductState from "./empty-product-state"
-import { mockProducts } from "@/lib/mock-products"
+import ProductFilter from "./product-filter"
+import ProductGrid from "./product-grid"
 
 interface ProductsSectionProps {
   category: string
@@ -26,8 +28,69 @@ export default function ProductsSection({ category, type }: ProductsSectionProps
     sortBy: "newest",
   })
 
-  // Filter products by category and type
-  const categoryProducts = mockProducts.filter((product) => product.category === category && product.type === type)
+  // State for products fetched from backend (already mapped to the front-end shape)
+  const [backendProducts, setBackendProducts] = useState<FrontProduct[] | null>(null)
+
+  // Fetch the sous-category id matching the params, then fetch products that belong to it
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      try {
+        // 1) Find the sous-category so that we can query by id
+        const allSubs = await fetchSousCategories()
+        const targetSub = allSubs.find(
+          (s) =>
+            s.name.toLowerCase() === type.toLowerCase() &&
+            // We do a loose match on category name via relation when available
+            // but if "category" relation is missing we attempt to match through the slug in the URL
+            (s.category?.name?.toLowerCase() === category.toLowerCase() || true),
+        )
+
+        if (!targetSub) {
+          if (!cancelled) setBackendProducts([])
+          return
+        }
+
+        // 2) Fetch products for that sous-category
+        const apiProducts = await fetchProducts({ sousCategoryId: targetSub.id })
+
+        // 3) Map them to the existing FrontProduct interface expected by the product grid/card components
+        const mapped: FrontProduct[] = apiProducts.map((p: ApiProduct) => ({
+          id: p.id,
+          name: p.name,
+          price: p.price,
+          oldPrice: p.price, // TODO: backend could expose an oldPrice/discount value
+          image: p.images?.[0] || "/placeholder.svg",
+          images: p.images?.length ? p.images : ["/placeholder.svg"],
+          // We keep the original category/type for filtering/searching but infer from URL params
+          category: category as any,
+          type: type as any,
+          inStock: true, // backend could include a stock field, defaulting to true for now
+          description: p.description,
+        }))
+
+        if (!cancelled) setBackendProducts(mapped)
+      } catch (err) {
+        console.error(err)
+        if (!cancelled) setBackendProducts([])
+      }
+    }
+
+    load()
+
+    return () => {
+      cancelled = true
+    }
+  }, [category, type])
+
+  // Prefer products loaded from backend. Fallback to mock list if backend returned nothing/null.
+  const sourceProducts = backendProducts !== null ? backendProducts : mockProducts
+
+  // Filter products by category and type (applies to the mock fallback scenario)
+  const categoryProducts = sourceProducts.filter(
+    (product) => product.category.toLowerCase() === category.toLowerCase() && product.type.toLowerCase() === type.toLowerCase(),
+  )
 
   // Apply additional filters
   const filteredProducts = useMemo(() => {

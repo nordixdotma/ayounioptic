@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { createContext, useContext, useReducer, useEffect } from "react"
-import type { Product } from "./mock-products"
+import { createContext, useContext, useEffect, useReducer } from "react"
 import type { CartItem } from "./cart-context"
+import type { Product } from "./mock-products"
 
 export interface Category {
   id: number
@@ -15,6 +15,7 @@ export interface Type {
   id: number
   name: string
   image: string
+  categoryId: number
 }
 
 export interface AdminProduct extends Omit<Product, "category" | "type"> {
@@ -90,11 +91,13 @@ const initialState: AdminState = {
       id: 1,
       name: "Vue",
       image: "https://images.unsplash.com/photo-1574258495973-f010dfbb5371?w=200&h=200&fit=crop",
+      categoryId: 1,
     },
     {
       id: 2,
       name: "Soleil",
       image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=200&h=200&fit=crop",
+      categoryId: 2,
     },
   ],
   products: [
